@@ -65,7 +65,7 @@ CREATE TABLE "expense_member" (
 
 
 --
--- FUNCTIONS
+-- TRIGGER FUNCTIONS
 --
 
 CREATE FUNCTION check_expense_member_group_func()
@@ -118,20 +118,6 @@ CREATE FUNCTION check_expense_maker_func()
     LANGUAGE 'plpgsql';
 
 
-CREATE TYPE member_balance as (member_id integer, group_id int8);
-CREATE FUNCTION check_expense_maker_func()
-    RETURNS setof  AS
-    $BODY$
-        DECLARE
-
-        BEGIN
-
-        END;
-    $BODY$
-    LANGUAGE 'plpgsql';
-
-
-
 --
 -- TRIGGER DEFINITIONS
 --
@@ -146,8 +132,59 @@ CREATE TRIGGER check_expense_maker
 
 
 --
+-- FUNCTIONS
+--
+
+CREATE FUNCTION member_balance_func(member_id integer, group_id integer)
+    RETURNS numeric AS
+    $BODY$
+        SELECT SUM("expense"."amount" / "members_agg"."num_members") AS "balance"
+        FROM (
+            SELECT "expense_member"."expense_id", COUNT("expense_member"."member_id") AS "num_members"
+            FROM "expense_member"
+            WHERE "expense_member"."expense_id" IN (
+                SELECT "expense"."id" AS "expense_id"
+                FROM "expense"
+                INNER JOIN "expense_member" ON "expense_member"."expense_id" = "expense"."id"
+                WHERE "expense"."group_id" = $2 AND "expense_member"."member_id" = $1
+            )
+            GROUP BY "expense_member"."expense_id"
+        ) AS "members_agg"
+        INNER JOIN "expense" ON "members_agg"."expense_id" = "expense"."id";
+    $BODY$
+    LANGUAGE 'sql';
+    
+    
+CREATE TYPE "member_balance" AS (member_id integer, balance numeric);
+CREATE OR REPLACE FUNCTION group_balance_func(group_id integer)
+    RETURNS setof member_balance AS
+    $BODY$
+        DECLARE
+            member_id integer;
+            result_row member_balance;
+        BEGIN
+            FOR member_id IN (
+                SELECT member_group.member_id
+                FROM member_group
+                WHERE member_group.group_id = $1
+            )
+            LOOP
+                result_row.member_id = member_id;
+                result_row.balance = member_balance_func(member_id, $1);
+                RETURN NEXT result_row;
+            END LOOP;
+            RETURN;
+        END
+    $BODY$
+    LANGUAGE 'plpgsql';
+
+
+
+
+--
 -- VIEWS
 --
+
 
 CREATE VIEW "view_expense_with_member_names" AS
     SELECT "expense".*, "expense_member_agg"."expense_members"
