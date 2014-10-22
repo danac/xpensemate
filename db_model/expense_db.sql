@@ -1,65 +1,61 @@
- 
 --
 -- DATABASE STRUCTURE
 --
  
  
-CREATE TABLE "member" (
-    "id" serial
-        PRIMARY KEY , 
-    "name" varchar(15)
+CREATE TABLE table_member (
+    id SERIAL
+        PRIMARY KEY, 
+    name VARCHAR(15)
         NOT NULL
         UNIQUE
 );
 
  
-CREATE TABLE "group" (
-    "id" serial
-        PRIMARY KEY , 
-    "name" varchar(50)
+CREATE TABLE table_group (
+    id SERIAL
+        PRIMARY KEY, 
+    name VARCHAR(50)
         NOT NULL
 );
 
  
-CREATE TABLE "member_group" (
-    "member_id" integer
+CREATE TABLE table_member_group (
+    member_id INTEGER
         NOT NULL
-        REFERENCES "member" ( "id" ) ,
-    "group_id" integer
+        REFERENCES table_member (id),
+    group_id INTEGER
         NOT NULL
-        REFERENCES "group" ( "id" ) ,
-    PRIMARY KEY ("member_id", "group_id")
+        REFERENCES table_group (id),
+    PRIMARY KEY (member_id, group_id)
 );
 
  
-CREATE TABLE "expense" (
-    "id" serial
-        PRIMARY KEY , 
-    "date" date
-        NOT NULL , 
-    "description" text
-        NOT NULL , 
-    "amount" money
-        NOT NULL ,
-    "group_id" integer
+CREATE TABLE table_expense (
+    id SERIAL
+        PRIMARY KEY, 
+    date DATE
+        NOT NULL, 
+    description TEXT
+        NOT NULL, 
+    amount NUMERIC
+        NOT NULL,
+    group_id INTEGER
         NOT NULL
-        REFERENCES "group" ( "id" )
+        REFERENCES table_group (id)
 );
 
  
-CREATE TABLE "expense_member" (
-    "expense_id" integer
+CREATE TABLE table_expense_member (
+    expense_id INTEGER
         NOT NULL
-        REFERENCES "expense" ( "id" ) ,
-    "member_id" integer
+        REFERENCES table_expense (id),
+    member_id INTEGER
         NOT NULL
-        REFERENCES "member" ( "id" ) , 
-    "group_id" integer
-        NOT NULL
-        REFERENCES "member" ( "id" ) , 
-    "made_expense" boolean
-        NOT NULL ,
-    PRIMARY KEY ( "expense_id" , "member_id" )
+        REFERENCES table_member (id),
+    made_expense boolean
+        NOT NULL,
+    PRIMARY KEY (expense_id, member_id)
 );
 
 
@@ -69,17 +65,17 @@ CREATE TABLE "expense_member" (
 --
 
 CREATE FUNCTION check_expense_member_group_func()
-  RETURNS trigger AS
+  RETURNS TRIGGER AS
 $BODY$
 DECLARE
-    num_rows integer;
+    num_rows INTEGER;
 BEGIN
     num_rows := (
         SELECT COUNT(*)
-        FROM "member_group"
-        INNER JOIN "expense" ON "expense"."id" = NEW."expense_id"
-        WHERE "member_group"."group_id" = "expense"."group_id"
-        AND "member_group"."member_id" = NEW."member_id"
+        FROM table_member_group
+        INNER JOIN table_expense ON table_expense.id = NEW.expense_id
+        WHERE table_member_group.group_id = table_expense.group_id
+        AND table_member_group.member_id = NEW.member_id
     );
                 
     IF num_rows = 1 THEN
@@ -93,19 +89,19 @@ LANGUAGE 'plpgsql';
 
 
 CREATE FUNCTION check_expense_maker_func()
-    RETURNS trigger AS
+    RETURNS TRIGGER AS
     $BODY$
         DECLARE
-            num_makers integer;
+            num_makers INTEGER;
         BEGIN
-            IF NEW."made_expense" = FALSE THEN
+            IF NEW.made_expense = FALSE THEN
                 RETURN NEW;
             END IF;
             num_makers := (
                 SELECT COUNT(*)
-                FROM "expense_member"
-                WHERE "expense_member"."expense_id" = NEW.expense_id
-                AND "expense_member"."made_expense" = TRUE
+                FROM table_expense_member
+                WHERE table_expense_member.expense_id = NEW.expense_id
+                AND table_expense_member.made_expense = TRUE
             );
                         
             IF num_makers = 0 THEN
@@ -123,11 +119,11 @@ CREATE FUNCTION check_expense_maker_func()
 --
 
 CREATE TRIGGER check_expense_member_group
-    BEFORE INSERT OR UPDATE ON "expense_member" 
+    BEFORE INSERT OR UPDATE ON table_expense_member 
     FOR EACH ROW EXECUTE PROCEDURE check_expense_member_group_func();
 
 CREATE TRIGGER check_expense_maker
-    BEFORE INSERT OR UPDATE ON "expense_member" 
+    BEFORE INSERT OR UPDATE ON table_expense_member 
     FOR EACH ROW EXECUTE PROCEDURE check_expense_maker_func();
 
 
@@ -135,38 +131,38 @@ CREATE TRIGGER check_expense_maker
 -- FUNCTIONS
 --
 
-CREATE FUNCTION member_balance_func(member_id integer, group_id integer)
-    RETURNS numeric AS
+CREATE FUNCTION member_balance_func(member_id INTEGER, group_id INTEGER)
+    RETURNS NUMERIC AS
     $BODY$
-        SELECT SUM("expense"."amount" / "members_agg"."num_members") AS "balance"
+        SELECT SUM(table_expense.amount / members_agg.num_members) AS balance
         FROM (
-            SELECT "expense_member"."expense_id", COUNT("expense_member"."member_id") AS "num_members"
-            FROM "expense_member"
-            WHERE "expense_member"."expense_id" IN (
-                SELECT "expense"."id" AS "expense_id"
-                FROM "expense"
-                INNER JOIN "expense_member" ON "expense_member"."expense_id" = "expense"."id"
-                WHERE "expense"."group_id" = $2 AND "expense_member"."member_id" = $1
+            SELECT table_expense_member.expense_id, COUNT(table_expense_member.member_id) AS num_members
+            FROM table_expense_member
+            WHERE table_expense_member.expense_id IN (
+                SELECT table_expense.id AS expense_id
+                FROM table_expense
+                INNER JOIN table_expense_member ON table_expense_member.expense_id = table_expense.id
+                WHERE table_expense.group_id = $2 AND table_expense_member.member_id = $1
             )
-            GROUP BY "expense_member"."expense_id"
-        ) AS "members_agg"
-        INNER JOIN "expense" ON "members_agg"."expense_id" = "expense"."id";
+            GROUP BY table_expense_member.expense_id
+        ) AS members_agg
+        INNER JOIN table_expense ON members_agg.expense_id = table_expense.id;
     $BODY$
     LANGUAGE 'sql';
     
     
-CREATE TYPE "member_balance" AS (member_id integer, balance numeric);
-CREATE OR REPLACE FUNCTION group_balance_func(group_id integer)
-    RETURNS setof member_balance AS
+CREATE TYPE member_balance AS (member_id INTEGER, balance numeric);
+CREATE OR REPLACE FUNCTION group_balance_func(group_id INTEGER)
+    RETURNS SETOF member_balance AS
     $BODY$
         DECLARE
-            member_id integer;
+            member_id INTEGER;
             result_row member_balance;
         BEGIN
             FOR member_id IN (
-                SELECT member_group.member_id
-                FROM member_group
-                WHERE member_group.group_id = $1
+                SELECT table_member_group.member_id
+                FROM table_member_group
+                WHERE table_member_group.group_id = $1
             )
             LOOP
                 result_row.member_id = member_id;
@@ -186,31 +182,31 @@ CREATE OR REPLACE FUNCTION group_balance_func(group_id integer)
 --
 
 
-CREATE VIEW "view_expense_with_member_names" AS
-    SELECT "expense".*, "expense_member_agg"."expense_members"
+CREATE VIEW view_expense_with_member_names AS
+    SELECT table_expense.*, expense_member_agg.expense_members
     FROM (
-        SELECT "expense_member"."expense_id", string_agg("member"."name", '|') AS "expense_members"
-        FROM "expense_member"
-        INNER JOIN "member" ON "member"."id" = "expense_member"."member_id"
-        GROUP BY "expense_member"."expense_id")
-    AS "expense_member_agg"
-    INNER JOIN "expense" ON "expense_member_agg"."expense_id" = "expense"."id";
+        SELECT table_expense_member.expense_id, string_agg(table_member.name, '|') AS expense_members
+        FROM table_expense_member
+        INNER JOIN table_member ON table_member.id = table_expense_member.member_id
+        GROUP BY table_expense_member.expense_id)
+    AS expense_member_agg
+    INNER JOIN table_expense ON expense_member_agg.expense_id = table_expense.id;
 
-CREATE VIEW "view_expense_num_members" AS
-    SELECT "expense_member"."expense_id", COUNT("expense_member"."member_id") AS "num_members"
-    FROM "expense_member"
-    GROUP BY "expense_member"."expense_id";
+CREATE VIEW view_expense_num_members AS
+    SELECT table_expense_member.expense_id, COUNT(table_expense_member.member_id) AS num_members
+    FROM table_expense_member
+    GROUP BY table_expense_member.expense_id;
 
-CREATE VIEW "view_expense_shared_amount" AS
-    SELECT "expense"."id" AS "expense_id",
-           "expense"."group_id",
-           "members_agg"."num_members",
-           "expense"."amount",
-           "expense"."amount" / "members_agg"."num_members" AS "shared_amount"
+CREATE VIEW view_expense_shared_amount AS
+    SELECT table_expense.id AS expense_id,
+           table_expense.group_id,
+           members_agg.num_members,
+           table_expense.amount,
+           table_expense.amount / members_agg.num_members AS shared_amount
     FROM (
-        SELECT "expense_member"."expense_id", COUNT("expense_member"."member_id") AS "num_members"
-        FROM "expense_member"
-        ---WHERE "expense_member"."expense_id" IN (SELECT "expense"."id" FROM "expense" WHERE "expense"."group_id" = 1)
-        GROUP BY "expense_member"."expense_id"
-    ) AS "members_agg"
-    INNER JOIN "expense" ON "members_agg"."expense_id" = "expense"."id";
+        SELECT table_expense_member.expense_id, COUNT(table_expense_member.member_id) AS num_members
+        FROM table_expense_member
+        ---WHERE table_expense_member.expense_id IN (SELECT table_expense.id FROM table_expense WHERE table_expense.group_id = 1)
+        GROUP BY table_expense_member.expense_id
+    ) AS members_agg
+    INNER JOIN table_expense ON members_agg.expense_id = table_expense.id;
