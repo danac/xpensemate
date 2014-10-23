@@ -131,11 +131,12 @@ CREATE TRIGGER check_expense_maker
 -- FUNCTIONS
 --
 
+--- Get the balance of a given member in a given group
 CREATE FUNCTION member_balance_func(member_id INTEGER, group_id INTEGER)
     RETURNS NUMERIC AS
     $BODY$
         --- Difference of the amounts to pay and already paid
-        SELECT amount_to_pay_agg.amount_to_pay - paid_amount_agg.paid_amount AS balance
+        SELECT amount_to_pay_agg.amount_to_pay - COALESCE(paid_amount_agg.paid_amount, 0.0) AS balance
         FROM (
             --- Aggregation of the total amount of the selected expenses
             --- weighted by the number of members involved in each expense
@@ -162,14 +163,14 @@ CREATE FUNCTION member_balance_func(member_id INTEGER, group_id INTEGER)
             SELECT SUM(table_expense.amount) AS paid_amount
             FROM table_expense
             INNER JOIN table_expense_member ON table_expense_member.expense_id = table_expense.id
-            WHERE table_expense.group_id = 1 AND table_expense_member.member_id = 2 AND table_expense_member.made_expense IS TRUE
+            WHERE table_expense.group_id = $2 AND table_expense_member.member_id = $1 AND table_expense_member.made_expense IS TRUE
         ) AS paid_amount_agg
     $BODY$
     LANGUAGE 'sql';
     
-    
-CREATE TYPE member_balance AS (member_id INTEGER, balance numeric);
 
+--- List the members of a group with their overall balance in the group
+CREATE TYPE member_balance AS (member_id INTEGER, balance numeric);
 CREATE OR REPLACE FUNCTION group_balance_func(group_id INTEGER)
     RETURNS SETOF member_balance AS
     $BODY$
@@ -193,13 +194,11 @@ CREATE OR REPLACE FUNCTION group_balance_func(group_id INTEGER)
     LANGUAGE 'plpgsql';
 
 
-
-
 --
 -- VIEWS
 --
 
-
+--- List all expenses with human-readable member names
 CREATE VIEW view_expense_with_member_names AS
     SELECT table_expense.*, expense_member_agg.expense_members
     FROM (
@@ -210,11 +209,13 @@ CREATE VIEW view_expense_with_member_names AS
     AS expense_member_agg
     INNER JOIN table_expense ON expense_member_agg.expense_id = table_expense.id;
 
+--- List all expenses with the number of members concerned by each of them
 CREATE VIEW view_expense_num_members AS
     SELECT table_expense_member.expense_id, COUNT(table_expense_member.member_id) AS num_members
     FROM table_expense_member
     GROUP BY table_expense_member.expense_id;
 
+--- List all expenses with the amount to be paid by each of the members of the expenses
 CREATE VIEW view_expense_shared_amount AS
     SELECT table_expense.id AS expense_id,
            table_expense.group_id,
@@ -224,6 +225,7 @@ CREATE VIEW view_expense_shared_amount AS
     FROM (
         SELECT table_expense_member.expense_id, COUNT(table_expense_member.member_id) AS num_members
         FROM table_expense_member
+        --- Un-comment to filter the expenses listed based on a group ID
         ---WHERE table_expense_member.expense_id IN (SELECT table_expense.id FROM table_expense WHERE table_expense.group_id = 1)
         GROUP BY table_expense_member.expense_id
     ) AS members_agg
