@@ -4,14 +4,12 @@
 
 --- List all expenses with human-readable member names
 CREATE OR REPLACE VIEW view_expense_with_member_names AS
-    SELECT table_expense.*, expense_member_agg.expense_members
-    FROM (
-        SELECT table_expense_member.expense_id, string_agg(table_member.name, '|') AS expense_members
-        FROM table_expense_member
-        INNER JOIN table_member ON table_member.id = table_expense_member.member_id
-        GROUP BY table_expense_member.expense_id)
-    AS expense_member_agg
-    INNER JOIN table_expense ON expense_member_agg.expense_id = table_expense.id;
+    SELECT table_expense.*, string_agg(table_member.name, '|') AS expense_members
+    FROM table_expense_member
+    INNER JOIN table_member ON table_member.id = table_expense_member.member_id
+    INNER JOIN table_expense on table_expense.id = table_expense_member.expense_id
+    ---WHERE table_expense.group_id=1
+    GROUP BY table_expense.id
 
 --- List all expenses with the number of members concerned by each of them
 CREATE OR REPLACE VIEW view_expense_num_members AS
