@@ -43,7 +43,7 @@ DROP TABLE IF EXISTS table_expense CASCADE;
 CREATE TABLE table_expense (
     id SERIAL
         PRIMARY KEY, 
-    date DATE
+    date_info DATE
         NOT NULL, 
     description TEXT
         NOT NULL, 

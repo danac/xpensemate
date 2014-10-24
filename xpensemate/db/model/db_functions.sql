@@ -3,6 +3,73 @@
 -- FUNCTIONS
 --
 
+--- List the members of a group with their overall balance in the group
+DROP TYPE IF EXISTS member_credential_t CASCADE;
+CREATE TYPE member_credential_t AS (id INTEGER, name VARCHAR, password_hash BYTEA, password_salt BYTEA);
+CREATE OR REPLACE FUNCTION get_user(name VARCHAR)
+    RETURNS SETOF member_credential_t AS
+    $BODY$
+        SELECT id, name, password_hash, password_salt
+        FROM table_member
+        WHERE name = $1 AND active IS TRUE
+    $BODY$
+    LANGUAGE 'sql';
+
+
+--- List the groups of a given member, based on a member id
+CREATE OR REPLACE FUNCTION get_groups(member_id INTEGER)
+    RETURNS SETOF table_group AS
+    $BODY$
+        SELECT table_group.id, table_group.name
+        FROM table_member_group
+        INNER JOIN table_group ON table_group.id = table_member_group.group_id
+        WHERE table_member_group.member_id = $1
+    $BODY$
+    LANGUAGE 'sql';
+
+
+--- List the groups of a given member, based on a member name
+--CREATE OR REPLACE FUNCTION get_groups(member_name VARCHAR)
+    --RETURNS SETOF table_group AS
+    --$BODY$
+        --DECLARE
+            --member_id INTEGER;
+        --BEGIN
+            --member_id = (SELECT id FROM table_member WHERE name = $1);
+            --RETURN QUERY SELECT * FROM get_groups(member_id);
+        --END
+    --$BODY$
+    --LANGUAGE 'plpgsql'
+
+--- List the members of a group, based on a group id
+DROP TYPE IF EXISTS member_t CASCADE;
+CREATE TYPE member_t AS (id INTEGER, name VARCHAR);
+CREATE OR REPLACE FUNCTION get_group_members(group_id INTEGER)
+    RETURNS SETOF member_t AS
+    $BODY$
+        SELECT table_member.id, table_member.name
+        FROM table_member_group
+        INNER JOIN table_member ON table_member_group.member_id = table_member.id
+        WHERE table_member_group.group_id = $1
+    $BODY$
+    LANGUAGE 'sql'
+
+
+--- List the expenses of a group
+DROP TYPE IF EXISTS expense_t CASCADE;
+CREATE TYPE expense_t AS (id INTEGER, date_info DATE, description TEXT, amount NUMERIC, member_names TEXT);
+CREATE OR REPLACE FUNCTION get_group_expenses(group_id INTEGER)
+    RETURNS SETOF expense_t AS
+    $BODY$
+        SELECT table_expense.*, string_agg(table_member.name, '|') AS expense_members
+        FROM table_expense_member
+        INNER JOIN table_member ON table_member.id = table_expense_member.member_id
+        INNER JOIN table_expense on table_expense.id = table_expense_member.expense_id
+        WHERE table_expense.group_id=$1
+        GROUP BY table_expense.id
+    $BODY$
+    LANGUAGE 'sql'
+
 --- Get the balance of a given member in a given group
 CREATE OR REPLACE FUNCTION get_member_balance(member_id INTEGER, group_id INTEGER)
     RETURNS NUMERIC AS
@@ -41,15 +108,15 @@ CREATE OR REPLACE FUNCTION get_member_balance(member_id INTEGER, group_id INTEGE
     LANGUAGE 'sql';
     
 
---- List the members of a group with their overall balance in the group
-DROP TYPE IF EXISTS member_balance CASCADE;
+--- List the balances of all members of a group
+DROP TYPE IF EXISTS member_balance_t CASCADE;
 CREATE TYPE member_balance AS (member_id INTEGER, balance numeric);
 CREATE OR REPLACE FUNCTION get_group_balances(group_id INTEGER)
-    RETURNS SETOF member_balance AS
+    RETURNS SETOF member_balance_t AS
     $BODY$
         DECLARE
             member_id INTEGER;
-            result_row member_balance;
+            result_row member_balance_t;
         BEGIN
             FOR member_id IN (
                 SELECT table_member_group.member_id
