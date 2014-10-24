@@ -3,7 +3,7 @@
 --
 
 --- List all expenses with human-readable member names
-CREATE VIEW view_expense_with_member_names AS
+CREATE OR REPLACE VIEW view_expense_with_member_names AS
     SELECT table_expense.*, expense_member_agg.expense_members
     FROM (
         SELECT table_expense_member.expense_id, string_agg(table_member.name, '|') AS expense_members
@@ -14,13 +14,13 @@ CREATE VIEW view_expense_with_member_names AS
     INNER JOIN table_expense ON expense_member_agg.expense_id = table_expense.id;
 
 --- List all expenses with the number of members concerned by each of them
-CREATE VIEW view_expense_num_members AS
+CREATE OR REPLACE VIEW view_expense_num_members AS
     SELECT table_expense_member.expense_id, COUNT(table_expense_member.member_id) AS num_members
     FROM table_expense_member
     GROUP BY table_expense_member.expense_id;
 
 --- List all expenses with the amount to be paid by each of the members of the expenses
-CREATE VIEW view_expense_shared_amount AS
+CREATE OR REPLACE VIEW view_expense_shared_amount AS
     SELECT table_expense.id AS expense_id,
            table_expense.group_id,
            members_agg.num_members,
