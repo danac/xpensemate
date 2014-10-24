@@ -15,12 +15,12 @@ def lru_cache(cache_size=100):
             key = repr(args)
             if kwargs:
                 key += repr(tuple(sorted(kwargs.items())))
-            print("Key", key)
+            #print("Key", key)
             try:
                 result = cache.pop(key)
-                print("Cache hit")
+                #print("Cache hit")
             except KeyError:
-                print("Cache miss")
+                #print("Cache miss")
                 result = function(*args, **kwargs)
                 if len(cache) >= cache_size:
                     cache.popitem(0)    # purge least recently used cache entry

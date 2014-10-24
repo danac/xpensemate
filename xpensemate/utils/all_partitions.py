@@ -6,6 +6,7 @@ import copy
 """
 http://stackoverflow.com/questions/18353280/iterator-over-all-partitions-into-k-groups
 """
+TOL = 1e-10
 
 def clusters(l, K):
     if len(l) > 0:
@@ -47,11 +48,11 @@ def partition(l):
         for i in neclusters3(l,k):
             flag = True
             for j in i:
-                flag = flag and (sum(j) == 0)
+                flag = flag and (abs(sum(j)-0) < TOL)
             if flag:
                 parts = map(tuple, i)
                 return tuple(parts)
-    return l
+    return l,
 
 class MemberBalance:
     
@@ -143,19 +144,24 @@ def optimal_solve(l, partitioning=True):
         parts = partition(typed_l)
     else:
         parts = (typed_l,)
-    print("Found {}-way partition".format(len(parts)))
+    print("Using a {}-partition".format(len(parts)))
     transfers = {}
     for part in parts:
         new_transfers = bipartite_matching(part)
         transfers = dict(mergedicts(transfers, new_transfers))
-    print("Total number of bipartite matches {}".format(len(transfers)))
+    num_transfers = 0
+    for key, val in transfers.items():
+        num_transfers += len(val)
+    print("Total number of bipartite matches {}".format(num_transfers))
     return transfers
     
-l = (5, 3, -5, -3, 9, -9, 10, -7, -3)#, -5, -4, -1)
-
+l = (5, 3.3, -5, -4, 9, -9.2, 11, -7.1, -3)#, -5, -4, -1)
+assert abs(sum(l)-0)<TOL, sum(l)
 result = optimal_solve(l)
 print(result)
 print("---")
-result = optimal_solve(l, False)
-result = optimal_solve(l, False)
+result = optimal_solve(l, partitioning=False)
+print(result)
+print("---")
+result = optimal_solve(l)
 print(result)
