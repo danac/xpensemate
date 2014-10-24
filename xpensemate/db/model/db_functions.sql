@@ -4,7 +4,7 @@
 --
 
 --- Get the balance of a given member in a given group
-CREATE FUNCTION member_balance_func(member_id INTEGER, group_id INTEGER)
+CREATE OR REPLACE FUNCTION get_member_balance(member_id INTEGER, group_id INTEGER)
     RETURNS NUMERIC AS
     $BODY$
         --- Difference of the amounts to pay and already paid
@@ -42,8 +42,9 @@ CREATE FUNCTION member_balance_func(member_id INTEGER, group_id INTEGER)
     
 
 --- List the members of a group with their overall balance in the group
+DROP TYPE IF EXISTS member_balance CASCADE;
 CREATE TYPE member_balance AS (member_id INTEGER, balance numeric);
-CREATE OR REPLACE FUNCTION group_balance_func(group_id INTEGER)
+CREATE OR REPLACE FUNCTION get_group_balances(group_id INTEGER)
     RETURNS SETOF member_balance AS
     $BODY$
         DECLARE
@@ -57,7 +58,7 @@ CREATE OR REPLACE FUNCTION group_balance_func(group_id INTEGER)
             )
             LOOP
                 result_row.member_id = member_id;
-                result_row.balance = member_balance_func(member_id, $1);
+                result_row.balance = get_member_balance(member_id, $1);
                 RETURN NEXT result_row;
             END LOOP;
             RETURN;

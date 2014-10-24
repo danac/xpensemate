@@ -2,7 +2,7 @@
 -- DATABASE STRUCTURE
 --
  
- 
+DROP TABLE IF EXISTS table_member CASCADE;
 CREATE TABLE table_member (
     id SERIAL
         PRIMARY KEY, 
@@ -18,7 +18,7 @@ CREATE TABLE table_member (
         DEFAULT TRUE
 );
 
- 
+DROP TABLE IF EXISTS table_group CASCADE;
 CREATE TABLE table_group (
     id SERIAL
         PRIMARY KEY, 
@@ -26,7 +26,8 @@ CREATE TABLE table_group (
         NOT NULL
 );
 
- 
+
+DROP TABLE IF EXISTS table_member_group CASCADE;
 CREATE TABLE table_member_group (
     member_id INTEGER
         NOT NULL
@@ -37,7 +38,8 @@ CREATE TABLE table_member_group (
     PRIMARY KEY (member_id, group_id)
 );
 
- 
+
+DROP TABLE IF EXISTS table_expense CASCADE;
 CREATE TABLE table_expense (
     id SERIAL
         PRIMARY KEY, 
@@ -53,6 +55,7 @@ CREATE TABLE table_expense (
 );
 
  
+DROP TABLE IF EXISTS table_expense_member CASCADE;
 CREATE TABLE table_expense_member (
     expense_id INTEGER
         NOT NULL

@@ -3,7 +3,7 @@
 -- TRIGGER FUNCTIONS
 --
 
-CREATE FUNCTION check_expense_member_group_func()
+CREATE OR REPLACE FUNCTION check_expense_member_group()
   RETURNS TRIGGER AS
 $BODY$
 DECLARE
@@ -27,7 +27,7 @@ $BODY$
 LANGUAGE 'plpgsql';
 
 
-CREATE FUNCTION check_expense_maker_func()
+CREATE OR REPLACE FUNCTION check_expense_maker()
     RETURNS TRIGGER AS
     $BODY$
         DECLARE
@@ -56,11 +56,16 @@ CREATE FUNCTION check_expense_maker_func()
 --
 -- TRIGGER DEFINITIONS
 --
-
+DROP TRIGGER IF EXISTS check_expense_member_group ON table_expense_member;
 CREATE TRIGGER check_expense_member_group
-    BEFORE INSERT OR UPDATE ON table_expense_member 
-    FOR EACH ROW EXECUTE PROCEDURE check_expense_member_group_func();
+    BEFORE INSERT OR UPDATE
+    ON table_expense_member 
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_expense_member_group();
 
+DROP TRIGGER IF EXISTS check_expense_maker ON table_expense_member;
 CREATE TRIGGER check_expense_maker
-    BEFORE INSERT OR UPDATE ON table_expense_member 
-    FOR EACH ROW EXECUTE PROCEDURE check_expense_maker_func();
+    BEFORE INSERT OR UPDATE
+    ON table_expense_member 
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_expense_maker();
