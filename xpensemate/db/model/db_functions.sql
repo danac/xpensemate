@@ -1,6 +1,6 @@
 
 --
--- FUNCTIONS
+-- GETTER FUNCTIONS
 --
 
 --- List the members of a group with their overall balance in the group
@@ -133,3 +133,52 @@ CREATE OR REPLACE FUNCTION get_group_balances(group_id INTEGER)
     $BODY$
     LANGUAGE 'plpgsql';
 
+
+--
+-- SETTER FUNCTIONS
+--
+
+
+--- Create a new group
+CREATE OR REPLACE FUNCTION insert_member(member_name VARCHAR, member_password_hash VARCHAR, member_password_salt VARCHAR)
+    RETURNS INTEGER AS
+    $BODY$
+        DECLARE
+            member_id INTEGER;
+        BEGIN
+            INSERT INTO table_member (name, password_hash, password_salt) VALUES (QUOTE_LITERAL($1), DECODE($2, 'base64'), DECODE($3, 'base64'));
+            member_id := (SELECT currval(pg_get_serial_sequence('table_member', 'id')));
+            RETURN member_id;
+        END
+    $BODY$
+    LANGUAGE 'plpgsql';
+    
+    
+--- Create a new group
+CREATE OR REPLACE FUNCTION insert_group(name VARCHAR, owner_id INTEGER, other_members VARIADIC INTEGER[])
+    RETURNS INTEGER AS
+    $BODY$
+        DECLARE
+            group_id INTEGER;
+            other_member_id INTEGER;
+        BEGIN
+            INSERT INTO table_group (name) VALUES (QUOTE_LITERAL($1));
+            group_id := (SELECT currval(pg_get_serial_sequence('table_group', 'id')));
+            INSERT INTO table_member_group (member_id, group_id, is_owner) VALUES ($2, group_id, TRUE);
+            FOR other_member_id IN (SELECT i FROM UNNEST($3) AS i )
+            LOOP
+                INSERT INTO table_member_group (member_id, group_id, is_owner) VALUES (other_member_id, group_id, FALSE);
+            END LOOP;
+            RETURN group_id;
+        END
+    $BODY$
+    LANGUAGE 'plpgsql';
+    
+    
+--- Create a new group member
+CREATE OR REPLACE FUNCTION insert_group_member(new_member_id INTEGER, target_group_id INTEGER)
+    RETURNS VOID AS
+    $BODY$
+        INSERT INTO table_member_group (member_id, group_id, is_owner) VALUES ($1, $2, FALSE);
+    $BODY$
+    LANGUAGE 'sql';
