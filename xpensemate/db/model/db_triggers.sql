@@ -14,7 +14,7 @@ BEGIN
         FROM table_member_group
         INNER JOIN table_expense ON table_expense.id = NEW.expense_id
         WHERE table_member_group.group_id = table_expense.group_id
-        AND table_member_group.member_id = NEW.member_id
+            AND table_member_group.member_id = NEW.member_id
     );
                 
     IF num_rows = 1 THEN
@@ -32,22 +32,62 @@ CREATE OR REPLACE FUNCTION check_expense_maker()
     $BODY$
         DECLARE
             num_makers INTEGER;
+            num_members INTEGER;
         BEGIN
-            IF NEW.made_expense = FALSE THEN
-                RETURN NEW;
-            END IF;
+            num_members := (
+                SELECT COUNT(*)
+                FROM table_expense_member
+                WHERE table_expense_member.expense_id = NEW.expense_id
+            );
             num_makers := (
                 SELECT COUNT(*)
                 FROM table_expense_member
                 WHERE table_expense_member.expense_id = NEW.expense_id
-                AND table_expense_member.made_expense = TRUE
+                    AND table_expense_member.made_expense = TRUE
             );
                         
-            IF num_makers = 0 THEN
-                RETURN NEW;
-            ELSE 
+            IF NEW.made_expense IS FALSE AND num_members = 0 THEN
+                RAISE EXCEPTION 'First member of an expense must have made it';
+            END IF;
+            
+            IF NEW.made_expense IS TRUE and num_makers > 0 THEN
                 RAISE EXCEPTION 'Expense maker already defined';
             END IF;
+            
+            RETURN NEW;
+        END;
+    $BODY$
+    LANGUAGE 'plpgsql';
+
+
+CREATE OR REPLACE FUNCTION check_group_owner()
+    RETURNS TRIGGER AS
+    $BODY$
+        DECLARE
+            num_owners INTEGER;
+            num_members INTEGER;
+        BEGIN
+            num_members := (
+                SELECT COUNT(*)
+                FROM table_member_group
+                WHERE table_member_group.group_id = NEW.group_id
+            );
+            num_owners := (
+                SELECT COUNT(*)
+                FROM table_member_group
+                WHERE table_member_group.group_id = NEW.group_id
+                    AND table_member_group.is_owner = TRUE
+            );
+                  
+            IF NEW.is_owner IS FALSE AND num_members = 0 THEN
+                RAISE EXCEPTION 'First member of a group must be owner';
+            END IF;
+            
+            IF NEW.is_owner IS TRUE and num_owners > 0 THEN
+                RAISE EXCEPTION 'Group already owned';
+            END IF;
+            
+            RETURN NEW;
         END;
     $BODY$
     LANGUAGE 'plpgsql';
@@ -69,3 +109,10 @@ CREATE TRIGGER check_expense_maker
     ON table_expense_member 
     FOR EACH ROW
     EXECUTE PROCEDURE check_expense_maker();
+
+DROP TRIGGER IF EXISTS check_group_owner ON table_member_group;
+CREATE TRIGGER check_group_owner
+    BEFORE INSERT OR UPDATE
+    ON table_member_group 
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_group_owner();

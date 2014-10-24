@@ -35,6 +35,8 @@ CREATE TABLE table_member_group (
     group_id INTEGER
         NOT NULL
         REFERENCES table_group (id),
+    is_owner BOOLEAN
+        NOT NULL,
     PRIMARY KEY (member_id, group_id)
 );
 

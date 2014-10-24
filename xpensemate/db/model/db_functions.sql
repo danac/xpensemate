@@ -5,11 +5,11 @@
 
 --- List the members of a group with their overall balance in the group
 DROP TYPE IF EXISTS member_credential_t CASCADE;
-CREATE TYPE member_credential_t AS (id INTEGER, name VARCHAR, password_hash BYTEA, password_salt BYTEA);
+CREATE TYPE member_credential_t AS (id INTEGER, name VARCHAR, password_hash VARCHAR, password_salt VARCHAR);
 CREATE OR REPLACE FUNCTION get_user(name VARCHAR)
     RETURNS SETOF member_credential_t AS
     $BODY$
-        SELECT id, name, password_hash, password_salt
+        SELECT id, name, ENCODE(password_hash, 'base64'), ENCODE(password_salt, 'base64')
         FROM table_member
         WHERE name = $1 AND active IS TRUE
     $BODY$
@@ -52,23 +52,23 @@ CREATE OR REPLACE FUNCTION get_group_members(group_id INTEGER)
         INNER JOIN table_member ON table_member_group.member_id = table_member.id
         WHERE table_member_group.group_id = $1
     $BODY$
-    LANGUAGE 'sql'
+    LANGUAGE 'sql';
 
 
 --- List the expenses of a group
 DROP TYPE IF EXISTS expense_t CASCADE;
-CREATE TYPE expense_t AS (id INTEGER, date_info DATE, description TEXT, amount NUMERIC, member_names TEXT);
+CREATE TYPE expense_t AS (id INTEGER, date_info DATE, description VARCHAR, amount NUMERIC, member_names VARCHAR);
 CREATE OR REPLACE FUNCTION get_group_expenses(group_id INTEGER)
     RETURNS SETOF expense_t AS
     $BODY$
-        SELECT table_expense.*, string_agg(table_member.name, '|') AS expense_members
+        SELECT table_expense.id, table_expense.date_info, table_expense.description, table_expense.amount, string_agg(table_member.name, '|') AS expense_members
         FROM table_expense_member
         INNER JOIN table_member ON table_member.id = table_expense_member.member_id
         INNER JOIN table_expense on table_expense.id = table_expense_member.expense_id
         WHERE table_expense.group_id=$1
         GROUP BY table_expense.id
     $BODY$
-    LANGUAGE 'sql'
+    LANGUAGE 'sql';
 
 --- Get the balance of a given member in a given group
 CREATE OR REPLACE FUNCTION get_member_balance(member_id INTEGER, group_id INTEGER)
@@ -110,7 +110,7 @@ CREATE OR REPLACE FUNCTION get_member_balance(member_id INTEGER, group_id INTEGE
 
 --- List the balances of all members of a group
 DROP TYPE IF EXISTS member_balance_t CASCADE;
-CREATE TYPE member_balance AS (member_id INTEGER, balance numeric);
+CREATE TYPE member_balance_t AS (member_id INTEGER, balance numeric);
 CREATE OR REPLACE FUNCTION get_group_balances(group_id INTEGER)
     RETURNS SETOF member_balance_t AS
     $BODY$
