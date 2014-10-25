@@ -3,6 +3,7 @@
 -- GETTER FUNCTIONS
 --
 
+
 --- List the members of a group with their overall balance in the group
 DROP TYPE IF EXISTS member_credential_t CASCADE;
 CREATE TYPE member_credential_t AS (id INTEGER, name VARCHAR, password_hash VARCHAR, password_salt VARCHAR);
@@ -41,6 +42,7 @@ CREATE OR REPLACE FUNCTION get_groups(member_id INTEGER)
     --$BODY$
     --LANGUAGE 'plpgsql'
 
+
 --- List the members of a group, based on a group id
 DROP TYPE IF EXISTS member_t CASCADE;
 CREATE TYPE member_t AS (id INTEGER, name VARCHAR);
@@ -69,6 +71,7 @@ CREATE OR REPLACE FUNCTION get_group_expenses(group_id INTEGER)
         GROUP BY table_expense.id
     $BODY$
     LANGUAGE 'sql';
+
 
 --- Get the balance of a given member in a given group
 CREATE OR REPLACE FUNCTION get_member_balance(member_id INTEGER, group_id INTEGER)
@@ -134,6 +137,7 @@ CREATE OR REPLACE FUNCTION get_group_balances(group_id INTEGER)
     LANGUAGE 'plpgsql';
 
 
+
 --
 -- SETTER FUNCTIONS
 --
@@ -146,7 +150,7 @@ CREATE OR REPLACE FUNCTION insert_member(member_name VARCHAR, member_password_ha
         DECLARE
             member_id INTEGER;
         BEGIN
-            INSERT INTO table_member (name, password_hash, password_salt) VALUES (QUOTE_LITERAL($1), DECODE($2, 'base64'), DECODE($3, 'base64'));
+            INSERT INTO table_member (name, password_hash, password_salt) VALUES ($1, DECODE($2, 'base64'), DECODE($3, 'base64'));
             member_id := (SELECT currval(pg_get_serial_sequence('table_member', 'id')));
             RETURN member_id;
         END
@@ -162,7 +166,7 @@ CREATE OR REPLACE FUNCTION insert_group(name VARCHAR, owner_id INTEGER, other_me
             group_id INTEGER;
             other_member_id INTEGER;
         BEGIN
-            INSERT INTO table_group (name) VALUES (QUOTE_LITERAL($1));
+            INSERT INTO table_group (name) VALUES ($1);
             group_id := (SELECT currval(pg_get_serial_sequence('table_group', 'id')));
             INSERT INTO table_member_group (member_id, group_id, is_owner) VALUES ($2, group_id, TRUE);
             FOR other_member_id IN (SELECT i FROM UNNEST($3) AS i )
@@ -180,5 +184,14 @@ CREATE OR REPLACE FUNCTION insert_group_member(new_member_id INTEGER, target_gro
     RETURNS VOID AS
     $BODY$
         INSERT INTO table_member_group (member_id, group_id, is_owner) VALUES ($1, $2, FALSE);
+    $BODY$
+    LANGUAGE 'sql';
+    
+    
+--- Remove an expense
+CREATE OR REPLACE FUNCTION delete_expense(expense_id INTEGER)
+    RETURNS VOID AS
+    $BODY$
+        DELETE FROM table_expense WHERE id=$1;
     $BODY$
     LANGUAGE 'sql';

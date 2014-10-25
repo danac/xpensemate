@@ -61,7 +61,8 @@ DROP TABLE IF EXISTS table_expense_member CASCADE;
 CREATE TABLE table_expense_member (
     expense_id INTEGER
         NOT NULL
-        REFERENCES table_expense (id),
+        REFERENCES table_expense (id)
+        ON DELETE CASCADE,
     member_id INTEGER
         NOT NULL
         REFERENCES table_member (id),
