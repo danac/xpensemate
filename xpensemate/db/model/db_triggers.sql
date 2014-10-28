@@ -7,20 +7,22 @@ CREATE OR REPLACE FUNCTION check_expense_member_group()
   RETURNS TRIGGER AS
 $BODY$
 DECLARE
-    num_rows INTEGER;
+    member_exists BOOLEAN;
 BEGIN
-    num_rows := (
-        SELECT COUNT(*)
-        FROM table_member_group
-        INNER JOIN table_expense ON table_expense.id = NEW.expense_id
-        WHERE table_member_group.group_id = table_expense.group_id
-            AND table_member_group.member_id = NEW.member_id
+    member_exists := (
+        SELECT EXISTS (
+            SELECT *
+            FROM table_member_group
+            INNER JOIN table_expense ON table_expense.id = NEW.expense_id
+            WHERE table_member_group.group_id = table_expense.group_id
+                AND table_member_group.member_id = NEW.member_id
+        )
     );
                 
-    IF num_rows = 1 THEN
+    IF member_exists IS TRUE THEN
       RETURN NEW;
     ELSE 
-      RAISE EXCEPTION 'User not in expense group';
+      RAISE EXCEPTION 'Member not in expense group';
     END IF;
 END;
 $BODY$
@@ -93,9 +95,43 @@ CREATE OR REPLACE FUNCTION check_group_owner()
     LANGUAGE 'plpgsql';
 
 
+CREATE OR REPLACE FUNCTION check_transfer_member_group()
+  RETURNS TRIGGER AS
+$BODY$
+DECLARE
+    from_member_exists BOOLEAN;
+    to_member_exists BOOLEAN;
+BEGIN
+    from_member_exists := (
+        SELECT EXISTS (
+            SELECT *
+            FROM table_member_group
+            WHERE table_member_group.group_id = NEW.group_id
+                AND table_member_group.member_id = NEW.from_member_id
+        )
+    );
+    to_member_exists := (
+        SELECT EXISTS (
+            SELECT *
+            FROM table_member_group
+            WHERE table_member_group.group_id = NEW.group_id
+                AND table_member_group.member_id = NEW.to_member_id
+        )
+    );
+                
+    IF from_member_exists IS TRUE AND to_member_exists IS TRUE THEN
+      RETURN NEW;
+    ELSE 
+      RAISE EXCEPTION 'Members of the transfer are not both in transfer group';
+    END IF;
+END;
+$BODY$
+LANGUAGE 'plpgsql';
+
 --
 -- TRIGGER DEFINITIONS
 --
+
 DROP TRIGGER IF EXISTS check_expense_member_group ON table_expense_member;
 CREATE TRIGGER check_expense_member_group
     BEFORE INSERT OR UPDATE
@@ -116,3 +152,10 @@ CREATE TRIGGER check_group_owner
     ON table_member_group 
     FOR EACH ROW
     EXECUTE PROCEDURE check_group_owner();
+DROP TRIGGER IF EXISTS check_expense_member_group ON table_expense_member;
+
+CREATE TRIGGER check_transfer_member_group
+    BEFORE INSERT OR UPDATE
+    ON table_transfer
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_transfer_member_group();

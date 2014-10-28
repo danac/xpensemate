@@ -5,7 +5,7 @@
 DROP TABLE IF EXISTS table_member CASCADE;
 CREATE TABLE table_member (
     id SERIAL
-        PRIMARY KEY, 
+        PRIMARY KEY,
     name VARCHAR(15)
         NOT NULL
         UNIQUE,
@@ -21,7 +21,7 @@ CREATE TABLE table_member (
 DROP TABLE IF EXISTS table_group CASCADE;
 CREATE TABLE table_group (
     id SERIAL
-        PRIMARY KEY, 
+        PRIMARY KEY,
     name VARCHAR(50)
         NOT NULL
 );
@@ -44,11 +44,11 @@ CREATE TABLE table_member_group (
 DROP TABLE IF EXISTS table_expense CASCADE;
 CREATE TABLE table_expense (
     id SERIAL
-        PRIMARY KEY, 
+        PRIMARY KEY,
     date_info DATE
-        NOT NULL, 
+        NOT NULL,
     description TEXT
-        NOT NULL, 
+        NOT NULL,
     amount NUMERIC
         NOT NULL,
     group_id INTEGER
@@ -69,4 +69,24 @@ CREATE TABLE table_expense_member (
     made_expense boolean
         NOT NULL,
     PRIMARY KEY (expense_id, member_id)
+);
+ 
+ 
+DROP TABLE IF EXISTS table_transfer CASCADE;
+CREATE TABLE table_transfer (
+    id SERIAL
+        PRIMARY KEY,
+    date_info DATE
+        NOT NULL,
+    amount NUMERIC
+        NOT NULL,
+    from_member_id INTEGER
+        NOT NULL
+        REFERENCES table_member (id),
+    to_member_id INTEGER
+        NOT NULL
+        REFERENCES table_member (id),
+    group_id INTEGER
+        NOT NULL
+        REFERENCES table_group (id)
 );
