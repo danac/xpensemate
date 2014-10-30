@@ -8,7 +8,7 @@ A few words about the database
 Tables and relations
 ====================
 
-.. image:: db_relations.png
+.. image:: /static/db_relations.png
 
 ==================== ===========
 Tables               Description
@@ -52,18 +52,18 @@ SQL source code
 ===============
 
 Table definitions
------------------
++++++++++++++++++
 
 .. literalinclude:: ../../xpensemate/db/model-postgres/db_structure.sql
 
 
 Triggers
---------
+++++++++
 
 .. literalinclude:: ../../xpensemate/db/model-postgres/db_triggers.sql
 
 
 Stored procedures
------------------
++++++++++++++++++
 
 .. literalinclude:: ../../xpensemate/db/model-postgres/db_functions.sql
