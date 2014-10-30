@@ -1,5 +1,5 @@
 import time
-from cache import lru_cache
+from .cache import lru_cache
 import functools
 import copy
 
@@ -154,14 +154,15 @@ def optimal_solve(l, partitioning=True):
         num_transfers += len(val)
     print("Total number of bipartite matches {}".format(num_transfers))
     return transfers
-    
-l = (5, 3.3, -5, -4, 9, -9.2, 11, -7.1, -3)#, -5, -4, -1)
-assert abs(sum(l)-0)<TOL, sum(l)
-result = optimal_solve(l)
-print(result)
-print("---")
-result = optimal_solve(l, partitioning=False)
-print(result)
-print("---")
-result = optimal_solve(l)
-print(result)
+
+if __name__ == "__main__":
+    l = (5, 3.3, -5, -4, 9, -9.2, 11, -7.1, -3)#, -5, -4, -1)
+    assert abs(sum(l)-0)<TOL, sum(l)
+    result = optimal_solve(l)
+    print(result)
+    print("---")
+    result = optimal_solve(l, partitioning=False)
+    print(result)
+    print("---")
+    result = optimal_solve(l)
+    print(result)
