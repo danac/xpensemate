@@ -1,6 +1,6 @@
-======================
+**********************
 Rest API documentation
-======================
+**********************
 
 Description of the RESTful API to the expense management backend.
 

@@ -2,4 +2,12 @@
 Code documentation
 ==================
 
-Documentation of the Python backend
+
+
+Backend interface
+=================
+
+
+.. automodule:: xpensemate.db.interface
+   :members:
+   :inherited-members:
