@@ -1,15 +1,33 @@
+-- Copyright 2014 Dana Christen
+--
+-- This file is part of XpenseMate, a tool for managing shared expenses and
+-- hosted at https://github.com/danac/xpensemate.
+--
+-- XpenseMate is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU Affero General Public License as
+-- published by the Free Software Foundation, either version 3 of the
+-- License, or (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU Affero General Public License for more details.
+--
+-- You should have received a copy of the GNU Affero General Public License
+-- along with this program. If not, see <http://www.gnu.org/licenses/>.
+--
+
+
 --
 -- GETTER FUNCTIONS
 --
 
 
 --- List the members of a group with their overall balance in the group
-DROP TYPE IF EXISTS member_credential_t CASCADE;
-CREATE TYPE member_credential_t AS (member_id INTEGER, member_name VARCHAR, password_hash VARCHAR, password_salt VARCHAR);
 CREATE OR REPLACE FUNCTION get_user(name VARCHAR)
-    RETURNS SETOF member_credential_t AS
+    RETURNS SETOF table_member AS
     $BODY$
-        SELECT id, name, ENCODE(password_hash, 'base64'), ENCODE(password_salt, 'base64')
+        SELECT id, name, ENCODE(password_hash, 'base64'), ENCODE(password_salt, 'base64'), active
         FROM table_member
         WHERE name = $1 AND active IS TRUE
     $BODY$
@@ -82,6 +100,7 @@ CREATE OR REPLACE FUNCTION get_group_expenses(group_id INTEGER)
         INNER JOIN table_member expense_maker_name ON expense_maker_name.id = expense_maker.member_id
         WHERE table_expense.group_id = $1
         GROUP BY table_expense.id, table_expense.date_info, table_expense.description, table_expense.amount, expense_maker_name.name
+        ORDER BY table_expense.date_info ASC
     $BODY$
     LANGUAGE 'sql';
 
@@ -97,6 +116,7 @@ CREATE OR REPLACE FUNCTION get_group_transfers(group_id INTEGER)
         INNER JOIN table_member from_members_lookup ON from_members_lookup.id = table_transfer.from_member_id
         INNER JOIN table_member to_members_lookup ON to_members_lookup.id = table_transfer.to_member_id
         WHERE table_transfer.group_id=$1
+        ORDER BY table_transfer.date_info ASC
     $BODY$
     LANGUAGE 'sql';
 
