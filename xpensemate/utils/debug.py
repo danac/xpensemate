@@ -19,8 +19,26 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+  
+import time
 
-from . import debug
-from . import cache
-from . import partitioning
-#from .all_partitions import optimal_solve
+def timeit(f):
+    """
+    Decorator printing the running time of the wrapped function.
+    
+    Usage:
+    
+    .. code-block:: python
+        
+        @timeit
+        def function(arguments):
+            pass
+        
+    """
+    def timer(*args, **kwargs):
+        t=time.time()
+        result = f(*args, **kwargs)
+        t2=time.time()
+        print("[{}]Running time: {:e} sec".format(f.__name__, t2 - t))
+        return result
+    return timer

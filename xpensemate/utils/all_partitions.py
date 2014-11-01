@@ -1,43 +1,11 @@
 import time
-from .cache import lru_cache
 import functools
-import copy
 
-"""
-http://stackoverflow.com/questions/18353280/iterator-over-all-partitions-into-k-groups
-"""
+
 TOL = 1e-10
 
-def clusters(l, K):
-    if len(l) > 0:
-        prev = None
-        for t in clusters(l[1:], K):
-            tup = sorted(t)
-            if tup != prev:
-                prev = tup
-                for i in range(K):
-                    #print(len(tup[:i]), tup[:i])
-                    yield tup[:i] + [[l[0]] + tup[i],] + tup[i+1:]
-    else:
-        yield [[] for _ in range(K)]
-            
-def neclusters3(l, K):
-    for c in clusters(l, K):
-        if all(x for x in c): yield c
 
-def timing(f):
-    def timer(*args, **kwargs):
-        t=time.time()
-        result = f(*args, **kwargs)
-        t2=time.time()
-        print("Running time: {:e} seconds".format(t2-t))
-        return result
-    return timer
-
-
-#@timing
-@lru_cache()
-def partition(l):
+def partition_balances(l):
     #print(len(list(neclusters3(l,3))))
     """
     This finds partitions of a given list of balances where the total balance
@@ -94,7 +62,7 @@ class MemberBalance:
     __nonzero__ = __bool__
 
 #@timing
-@lru_cache()
+#@lru_cache()
 def bipartite_matching(balances):
     if not any(balances):
         return {}
@@ -132,8 +100,8 @@ def mergedicts(dict1, dict2):
         else: 
             yield (k, dict2[k]) 
   
-@timing
-@lru_cache()
+#@timing
+#@lru_cache()
 def optimal_solve(l, partitioning=True):
     typed_l = []
     for i in l:
@@ -156,7 +124,11 @@ def optimal_solve(l, partitioning=True):
     return transfers
 
 if __name__ == "__main__":
-    l = (5, 3.3, -5, -4, 9, -9.2, 11, -7.1, -3)#, -5, -4, -1)
+    generate_partitioning_source_file("./test_part.py", 6)
+    import test_part
+    print(test_part.partitions)
+    """
+    l = (5, 3.3, -5, -4, 0.7) #9, -9.2, 11, -7.1, -3)#, -5, -4, -1)
     assert abs(sum(l)-0)<TOL, sum(l)
     result = optimal_solve(l)
     print(result)
@@ -166,3 +138,4 @@ if __name__ == "__main__":
     print("---")
     result = optimal_solve(l)
     print(result)
+    """
