@@ -20,7 +20,5 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from . import debug
-from . import cache
-from . import partitioning
-#from .all_partitions import optimal_solve
+import xpensemate.utils.benchmark
+import xpensemate.utils.partitioning

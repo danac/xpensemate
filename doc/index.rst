@@ -22,5 +22,5 @@ Contents:
    
    intro/intro.rst
    db/db.rst
-   backend/backend.rst
+   backend/modules.rst
    restapi/restapi.rst

@@ -1,26 +1,28 @@
 import time
 import functools
 
+import xpensemate.utils.partitioning
+import xpensemate.utils.benchmark as benchmark
 
 TOL = 1e-10
-
-
+@benchmark.timeit
 def partition_balances(l):
     #print(len(list(neclusters3(l,3))))
     """
     This finds partitions of a given list of balances where the total balance
     of each element of the partition is null (NP-complete)
     """
-    for k in range(len(l)-1, 1, -1):
-        #print("Evaluating {}-partitions".format(k))
-        for i in neclusters3(l,k):
+    try:
+        for i in partitioning.apply_partitions(l):
+            #print("--Checking {}".format(len(i)))
             flag = True
             for j in i:
                 flag = flag and (abs(sum(j)-0) < TOL)
             if flag:
                 parts = map(tuple, i)
                 return tuple(parts)
-    return l,
+    except NotImplementedError:
+        return l,
 
 class MemberBalance:
     
@@ -100,16 +102,15 @@ def mergedicts(dict1, dict2):
         else: 
             yield (k, dict2[k]) 
   
-#@timing
-#@lru_cache()
-def optimal_solve(l, partitioning=True):
+@benchmark.timeit
+def optimal_solve(l, enable_partitioning=True):
     typed_l = []
     for i in l:
         typed_l.append(MemberBalance(str(i), i))
     typed_l = tuple(typed_l)
     print("Set cardinality {}".format(len(typed_l)))
-    if partitioning:
-        parts = partition(typed_l)
+    if enable_partitioning:
+        parts = partition_balances(typed_l)
     else:
         parts = (typed_l,)
     print("Using a {}-partition".format(len(parts)))
@@ -124,18 +125,7 @@ def optimal_solve(l, partitioning=True):
     return transfers
 
 if __name__ == "__main__":
-    generate_partitioning_source_file("./test_part.py", 6)
-    import test_part
-    print(test_part.partitions)
-    """
-    l = (5, 3.3, -5, -4, 0.7) #9, -9.2, 11, -7.1, -3)#, -5, -4, -1)
+    l = (5, 3.3, -5, -4, 9, -9.2, 11, -6.8, -3.3)#, -5, -4, -1)
     assert abs(sum(l)-0)<TOL, sum(l)
     result = optimal_solve(l)
     print(result)
-    print("---")
-    result = optimal_solve(l, partitioning=False)
-    print(result)
-    print("---")
-    result = optimal_solve(l)
-    print(result)
-    """

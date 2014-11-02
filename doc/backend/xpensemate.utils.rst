@@ -1,17 +1,3 @@
-==================
-Code documentation
-==================
-
-
-
-Backend interface
-=================
-
-
-.. automodule:: xpensemate.db.interface
-   :members:
-   :inherited-members:
-   
 xpensemate.utils package
 ========================
 
@@ -26,18 +12,18 @@ xpensemate.utils.all_partitions module
     :undoc-members:
     :show-inheritance:
 
-xpensemate.utils.cache module
------------------------------
+xpensemate.utils.benchmark module
+---------------------------------
 
-.. automodule:: xpensemate.utils.cache
+.. automodule:: xpensemate.utils.benchmark
     :members:
     :undoc-members:
     :show-inheritance:
 
-xpensemate.utils.debug module
+xpensemate.utils.cache module
 -----------------------------
 
-.. automodule:: xpensemate.utils.debug
+.. automodule:: xpensemate.utils.cache
     :members:
     :undoc-members:
     :show-inheritance:

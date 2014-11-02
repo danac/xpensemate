@@ -21,7 +21,8 @@
 #
 
 import base64
-from . import partition_list
+import xpensemate.utils.partition_list
+
 
 def clustering(l, K):
     """
@@ -100,6 +101,7 @@ def non_empty_clustering(l, K):
     for c in clustering(l, K):
         if all(x for x in c): yield c
 
+
 def apply_partitions(l):
     """
     Given a list of elements, returns all partitions of that list based
@@ -117,21 +119,27 @@ def apply_partitions(l):
         given list instead of a list of positive integers.
         
     """
-    for partition in partition_list.partitions[len(l)]:
-        partitioned_list = []
-        for subset in partition:
-            partitioned_list.append([l[x] for x in subset])
-        yield partitioned_list
+    try:
+        for partition in partition_list.partitions[len(l)]:
+            partitioned_list = []
+            for subset in partition:
+                partitioned_list.append([l[x] for x in subset])
+            yield partitioned_list
+    except KeyError:
+        raise NotImplementedError("Partitioning not implemented for sets of {} elements")
 
 def generate_partitions(size):
     """
-    Based on a given size :math:`s`, generates a list of all k-partitions
+    Based on a given size :math:`s`, generates a list of all partitions
     returned by :func:`non_empty_clustering` applied to the list of integers
     from 0 to :math:`s`, for all :math:`1<k<s-1`.
     
     Partitions containing singletons are filtered out, which means that
     the output of this function corresponds to that of :func:`clustering`
     module without partitions containing singletons or empty sets.
+    
+    Partitions are sorted by decreasing values of :math:`k` (i.e. partitions
+    with more subsets come first).
     
     Parameters
     ----------
