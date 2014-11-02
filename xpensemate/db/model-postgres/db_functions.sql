@@ -108,7 +108,7 @@ CREATE OR REPLACE FUNCTION get_group_members(group_id INTEGER)
 -- List the expenses of a group, based on a group_id
 DROP TYPE IF EXISTS expense_t CASCADE;
 CREATE TYPE expense_t AS (
-    expense_id INTEGER,
+    id INTEGER,
     date_info DATE,
     description VARCHAR,
     amount NUMERIC,
@@ -243,7 +243,7 @@ CREATE OR REPLACE FUNCTION get_member_balance(member_id INTEGER, group_id INTEGE
 
 -- List the balances of all members of a group
 DROP TYPE IF EXISTS member_balance_t CASCADE;
-CREATE TYPE member_balance_t AS (member_name VARCHAR, balance numeric);
+CREATE TYPE member_balance_t AS (member_name VARCHAR, balance NUMERIC);
 
 CREATE OR REPLACE FUNCTION get_group_balances(group_id INTEGER)
     RETURNS SETOF member_balance_t AS
