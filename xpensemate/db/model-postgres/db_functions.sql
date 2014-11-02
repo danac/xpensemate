@@ -24,8 +24,15 @@
 
 
 -- List the members of a group with their overall balance in the group
+DROP TYPE IF EXISTS member_t CASCADE;
+CREATE TYPE member_credential_t AS (
+    id INTEGER,
+    name VARCHAR,
+    password_hash VARCHAR,
+    password_salt VARCHAR,
+    active BOOLEAN);
 CREATE OR REPLACE FUNCTION get_user(name VARCHAR)
-    RETURNS SETOF table_member AS
+    RETURNS SETOF member_credential_t AS
     $BODY$
         SELECT
             id,
