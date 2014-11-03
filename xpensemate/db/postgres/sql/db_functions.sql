@@ -24,7 +24,7 @@
 
 
 -- List the members of a group with their overall balance in the group
-DROP TYPE IF EXISTS member_t CASCADE;
+DROP TYPE IF EXISTS member_credential_t CASCADE;
 CREATE TYPE member_credential_t AS (
     id INTEGER,
     name VARCHAR,
@@ -44,8 +44,8 @@ CREATE OR REPLACE FUNCTION get_user(name VARCHAR)
         WHERE name = $1
             AND active IS TRUE
     $BODY$
-    LANGUAGE 'sql';
-
+    LANGUAGE 'sql'
+    SECURITY DEFINER;
 
 -- List the groups of a given member, based on a member id
 CREATE OR REPLACE FUNCTION get_groups(member_id INTEGER)
@@ -59,7 +59,8 @@ CREATE OR REPLACE FUNCTION get_groups(member_id INTEGER)
             ON table_group.id = table_member_group.group_id
         WHERE table_member_group.member_id = $1
     $BODY$
-    LANGUAGE 'sql';
+    LANGUAGE 'sql'
+    SECURITY DEFINER;
 
 
 ---- List the groups of a given member, based on a member name
@@ -89,7 +90,8 @@ CREATE OR REPLACE FUNCTION get_group_members(group_id INTEGER)
             ON table_member_group.member_id = table_member.id
         WHERE table_member_group.group_id = $1
     $BODY$
-    LANGUAGE 'sql';
+    LANGUAGE 'sql'
+    SECURITY DEFINER;
 
 
 ---- List the members of a group, based on a group name
@@ -144,7 +146,8 @@ CREATE OR REPLACE FUNCTION get_group_expenses(group_id INTEGER)
             expense_maker_name.name
         ORDER BY table_expense.date_info ASC
     $BODY$
-    LANGUAGE 'sql';
+    LANGUAGE 'sql'
+    SECURITY DEFINER;
 
 
 -- List the transfers of a group
@@ -173,7 +176,8 @@ CREATE OR REPLACE FUNCTION get_group_transfers(group_id INTEGER)
         WHERE table_transfer.group_id=$1
         ORDER BY table_transfer.date_info ASC
     $BODY$
-    LANGUAGE 'sql';
+    LANGUAGE 'sql'
+    SECURITY DEFINER;
 
 
 -- Get the balance of a given member in a given group
@@ -238,7 +242,8 @@ CREATE OR REPLACE FUNCTION get_member_balance(member_id INTEGER, group_id INTEGE
                 AND table_transfer.from_member_id = $1
         ) AS transfers_made_agg
     $BODY$
-    LANGUAGE 'sql';
+    LANGUAGE 'sql'
+    SECURITY DEFINER;
     
 
 -- List the balances of all members of a group
@@ -267,7 +272,8 @@ CREATE OR REPLACE FUNCTION get_group_balances(group_id INTEGER)
             RETURN;
         END
     $BODY$
-    LANGUAGE 'plpgsql';
+    LANGUAGE 'plpgsql'
+    SECURITY DEFINER;
 
 
 
@@ -291,7 +297,8 @@ CREATE OR REPLACE FUNCTION insert_member(member_name VARCHAR,
             RETURN member_id;
         END
     $BODY$
-    LANGUAGE 'plpgsql';
+    LANGUAGE 'plpgsql'
+    SECURITY DEFINER;
     
     
 -- Create a new group
@@ -317,7 +324,8 @@ CREATE OR REPLACE FUNCTION insert_group(name VARCHAR,
             RETURN group_id;
         END
     $BODY$
-    LANGUAGE 'plpgsql';
+    LANGUAGE 'plpgsql'
+    SECURITY DEFINER;
     
     
 -- Create a new group member
@@ -328,7 +336,8 @@ CREATE OR REPLACE FUNCTION insert_group_member(new_member_id INTEGER,
         INSERT INTO table_member_group (member_id, group_id, is_owner)
             VALUES ($1, $2, FALSE);
     $BODY$
-    LANGUAGE 'sql';
+    LANGUAGE 'sql'
+    SECURITY DEFINER;
     
     
 -- Remove an expense
@@ -337,4 +346,5 @@ CREATE OR REPLACE FUNCTION delete_expense(expense_id INTEGER)
     $BODY$
         DELETE FROM table_expense WHERE id=$1;
     $BODY$
-    LANGUAGE 'sql';
+    LANGUAGE 'sql'
+    SECURITY DEFINER;

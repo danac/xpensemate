@@ -34,10 +34,12 @@ a few triggers are defined to ensure the following points:
 * a group has one and only one owner
 
 
-Stored procedures
-=================
+.. _db_stored_functions:
 
-A collection of stored procedures implement an interface to the contents of
+Stored functions
+================
+
+A collection of stored functions implement an interface to the contents of
 the database.
 
 **This should be the only entry point into the database in the Python code**,

@@ -20,7 +20,31 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import xpensemate.db
-import xpensemate.utils
-import xpensemate.data_types
-import xpensemate.config
+class DBConfig:
+    """
+    This class holds the various configuration parameters that can be
+    determined at runtime and is used by the factories.
+    """
+    
+    #: The database backend engine to use, among the ones in
+    #: :data:`xpensemate.db.proxy.DatabaseProxyFactory.proxy_module_dispatch`
+    engine = "postgres"
+    
+    #: The database name
+    database = "expense"
+    
+    #: The database user
+    user = "xpensemate_function_invoker"
+    
+    #: The users's password
+    password = "lambda"
+    
+    #: The interface implemented in the database, among the ones in
+    #: :data:`xpensemate.db.interface.DatabaseInterfaceFactory.interface_class_dispatch`
+    interface = "stored_functions"
+    
+    #: The character used as delimiter in concatenated strings returned from the database
+    string_concat_delimiter = '|'
+    
+    
+    

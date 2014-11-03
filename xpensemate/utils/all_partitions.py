@@ -1,7 +1,7 @@
 import time
 import functools
 
-import xpensemate.utils.partitioning
+import xpensemate.utils.partitioning as partitioning
 import xpensemate.utils.benchmark as benchmark
 
 TOL = 1e-10

@@ -20,44 +20,113 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-#from ..utils import optimal_solve
+import abc
+from xpensemate.config import DBConfig
+from xpensemate.db.proxy import DatabaseProxyFactory
 
-class BackendInterface:
+
+class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
     """
-    This class contains the interface to the storage and expense management
-    backend that is expected by the rest of the code.
-    
+    This abstract class describes the interface to the storage
+    backend.
     """
     
-    def get_member(user_name):
+    @abc.abstractmethod
+    def get_member_credentials(member_name):
         """
-        Must return a whole user record
+        Returns the details of a user.
      
-        Parameters
-        ----------
-        user_name : string
-            The name of the user.
+        :param str member_name: The name of the user.
      
-        Returns
-        -------
-        user_t : list
-            Returns the user information.
-        
-        Raises
-        ------
-            NotImplemented
+        :return: A :class:`xpensemate.data_types.MemberWithCredentials` instance.
         """
         pass
     
+    
+    @abc.abstractmethod
+    def get_groups(member_id):
+        """
+        Returns the groups a user belongs to.
+     
+        :param int member_id: The id number of the user.
+     
+        :return: An iterable over :class:`xpensemate.data_types.Group` intances.
+        """
+        pass
+    
+    
+    @abc.abstractmethod
+    def get_group_expenses(group_id):
+        """
+        Returns the expenses of a group.
+     
+        :param int group_id: The id number of the group.
+     
+        :return: A :class:`xpensemate.data_types.GroupWithExpenses` instance.
+        """
+        pass
 
-class InterfaceToStoredProcedures(BackendInterface):
+
+class StoredFunctionsInterface():
     """
-    This class implements the backend interface from :class:`.BackendInterface`
-    by using a set of stored procedures expected to be implemented in a backend database.
-
-    It relies on a database connection object implementing a `query` method that
-    returns an iterable.
-
+    This class implements an interface to databases
+    exposing the stored procedures described in :ref:`db_stored_functions`.
     """
-    pass
+    
+    def __init__(self):
+        
+        #: Database proxy, implementing :class:`xpensemate.db.proxy.AbstractDatabaseProxy`
+        self.db_proxy = DatabaseProxyFactory.get_proxy()
+        
+        
+    def get_member_credentials(member_name):
+        self.db_proxy.query("")
+    
+    def _execute_stored_procedure(self, procedure_name, *args):
+        sql_query = "SELECT * FROM {}('{}');".format(procedure_name, ', '.join(args))
+        return self.db_proxy.query(sql_query)
+
+    
+class DatabaseInterfaceFactory:
+    """
+    Factory class used to automatically instantiate a database factory
+    based on the type of interface defined in :class:`xpensemate.config.DBConfig`.
+    """
+    
+    #: Singleton instance of the database interface
+    db_interface_instance = None
+    
+    #: Dictionary mapping the possible interface types in
+    #: :data:`xpensemate.config.DBConfig.interface` to classes
+    interface_class_dispatch = {
+        "stored_functions" : StoredFunctionsInterface
+    }
+    
+    
+    @classmethod
+    def get_interface(cls):
+        """
+        Returns the unique database proxy, after instantiating it
+        if necessary
+        
+        :return: The singleton instance to the database proxy
+        """
+        
+        if cls.db_interface_instance is None:
+            cls._instantiate_interface_instance()
+        
+        return cls.db_interface_instance
+        
+        
+    @classmethod
+    def _instantiate_interface_instance(cls):
+        interface_type = DBConfig.interface
+        try:
+            interface_class = cls.interface_class_dispatch[interface_type]()
+            cls.db_interface_instance = interface_class
+            
+        except KeyError:
+            message = "Database interface not implemented: {}".format(interface_type)
+            raise NotImplemented(message)
+        
     

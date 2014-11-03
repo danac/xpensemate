@@ -20,4 +20,5 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from . import interface
+import xpensemate.db.interface
+import xpensemate.db.proxy

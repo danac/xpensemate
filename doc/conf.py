@@ -36,11 +36,11 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
     #'matplotlib.sphinxext.plot_directive',
-    'numpydoc-git'
+    #'numpydoc-git'
 ]
 
 # Silence autodoc warnings during build
-numpydoc_show_class_members = False
+#numpydoc_show_class_members = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -269,3 +269,11 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+def skip(app, what, name, obj, skip, options):
+    if name == "__init__":
+        return False
+    return skip
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip)

@@ -63,7 +63,8 @@ class PartitionList:
     def __repr__(self):
         return "{l:[[[i,j,...], ...], ...], ...}"
 
-partitions = PartitionList() #: Instance of :class:`PartitionList`.
+#: Instance of :class:`PartitionList`.
+partitions = PartitionList()
 
 with open(os.path.join(os.path.dirname(__file__),'partition_list.inl'), 'r') as f:
     exec(f.read())
