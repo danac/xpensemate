@@ -21,4 +21,5 @@
 #
 
 import xpensemate.utils.benchmark
+import xpensemate.utils.cache
 import xpensemate.utils.partitioning

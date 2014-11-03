@@ -21,7 +21,7 @@
 #
 
 import base64
-import xpensemate.utils.partition_list
+from xpensemate.utils import partition_list
 
 
 def clustering(l, K):

@@ -1,11 +1,13 @@
 import time
 import functools
 
-import xpensemate.utils.partitioning as partitioning
-import xpensemate.utils.benchmark as benchmark
+from xpensemate.utils.partitioning import apply_partitions
+from xpensemate.utils import benchmark
 
 TOL = 1e-10
-@benchmark.timeit
+
+
+#@benchmark.timeit
 def partition_balances(l):
     #print(len(list(neclusters3(l,3))))
     """
@@ -13,7 +15,7 @@ def partition_balances(l):
     of each element of the partition is null (NP-complete)
     """
     try:
-        for i in partitioning.apply_partitions(l):
+        for i in apply_partitions(l):
             #print("--Checking {}".format(len(i)))
             flag = True
             for j in i:
@@ -23,6 +25,7 @@ def partition_balances(l):
                 return tuple(parts)
     except NotImplementedError:
         return l,
+
 
 class MemberBalance:
     
@@ -63,6 +66,7 @@ class MemberBalance:
             
     __nonzero__ = __bool__
 
+
 #@timing
 #@lru_cache()
 def bipartite_matching(balances):
@@ -93,7 +97,7 @@ def bipartite_matching(balances):
     
     return transfers
     
-def mergedicts(dict1, dict2):
+def merge_dicts(dict1, dict2):
     for k in set(dict1.keys()).union(dict2.keys()):
         if k in dict1 and k in dict2:
             yield (k, dict(mergedicts(dict1[k], dict2[k])))
@@ -102,30 +106,42 @@ def mergedicts(dict1, dict2):
         else: 
             yield (k, dict2[k]) 
   
-@benchmark.timeit
-def optimal_solve(l, enable_partitioning=True):
+
+def is_sum_null(l):
+    return (sum(l)-0) < TOL
+  
+
+#@benchmark.timeit
+def calculate_debts(l, enable_partitioning=True):
     typed_l = []
     for i in l:
         typed_l.append(MemberBalance(str(i), i))
     typed_l = tuple(typed_l)
-    print("Set cardinality {}".format(len(typed_l)))
+    #print("Set cardinality {}".format(len(typed_l)))
+    
     if enable_partitioning:
         parts = partition_balances(typed_l)
     else:
         parts = (typed_l,)
-    print("Using a {}-partition".format(len(parts)))
+    #print("Using a {}-partition".format(len(parts)))
+    
     transfers = {}
     for part in parts:
+        assert is_sum_null(part), "Bad partitioning error."
         new_transfers = bipartite_matching(part)
-        transfers = dict(mergedicts(transfers, new_transfers))
-    num_transfers = 0
-    for key, val in transfers.items():
-        num_transfers += len(val)
-    print("Total number of bipartite matches {}".format(num_transfers))
+        transfers = dict(merge_dicts(transfers, new_transfers))
+        
+    #num_transfers = 0
+    #for key, val in transfers.items():
+        #num_transfers += len(val)
+    #print("Total number of bipartite matches {}".format(num_transfers))
+    
     return transfers
+
 
 if __name__ == "__main__":
     l = (5, 3.3, -5, -4, 9, -9.2, 11, -6.8, -3.3)#, -5, -4, -1)
-    assert abs(sum(l)-0)<TOL, sum(l)
-    result = optimal_solve(l)
+    print("Testing with list:", l)
+    assert is_sum_null(l)
+    result = calculate_debts(l)
     print(result)
