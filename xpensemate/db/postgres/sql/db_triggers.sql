@@ -171,8 +171,8 @@ CREATE TRIGGER check_group_owner
     ON table_member_group 
     FOR EACH ROW
     EXECUTE PROCEDURE check_group_owner();
-DROP TRIGGER IF EXISTS check_expense_member_group ON table_expense_member;
-
+    
+DROP TRIGGER IF EXISTS check_transfer_member_group ON table_transfer;
 CREATE TRIGGER check_transfer_member_group
     BEFORE INSERT OR UPDATE
     ON table_transfer
