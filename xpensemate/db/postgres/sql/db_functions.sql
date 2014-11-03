@@ -31,7 +31,7 @@ CREATE TYPE member_credential_t AS (
     password_hash VARCHAR,
     password_salt VARCHAR,
     active BOOLEAN);
-CREATE OR REPLACE FUNCTION get_user(name VARCHAR)
+CREATE OR REPLACE FUNCTION get_member(name VARCHAR)
     RETURNS SETOF member_credential_t AS
     $BODY$
         SELECT
