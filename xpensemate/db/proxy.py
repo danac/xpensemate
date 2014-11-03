@@ -90,4 +90,4 @@ class DatabaseProxyFactory:
             
         except KeyError:
             message = "Database backend not implemented: {}".format(engine)
-            raise NotImplemented(message)
+            raise NotImplementedError(message)
