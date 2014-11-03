@@ -339,7 +339,36 @@ CREATE OR REPLACE FUNCTION insert_group_member(new_member_id INTEGER,
     LANGUAGE 'sql'
     SECURITY DEFINER;
     
-    
+
+CREATE OR REPLACE FUNCTION insert_expense(date_info DATE,
+                                          description VARCHAR,
+                                          amount NUMERIC,
+                                          group_id INTEGER,
+                                          maker_id INTEGER,
+                                          other_members_id VARIADIC INTEGER[])
+    RETURNS INTEGER AS
+    $BODY$
+        DECLARE
+            expense_id INTEGER;
+            other_member_id INTEGER;
+        BEGIN
+            INSERT INTO table_expense (date_info, description, amount, group_id)
+                VALUES ($1, $2, $3, $4);
+            expense_id := (SELECT currval(pg_get_serial_sequence('table_expense', 'id')));
+            INSERT INTO table_expense_member (expense_id, member_id, made_expense)
+                VALUES (expense_id, $5, TRUE);
+            FOR other_member_id IN (SELECT i FROM UNNEST($6) AS i )
+            LOOP
+                INSERT INTO table_expense_member (expense_id, member_id, made_expense)
+                    VALUES (expense_id, other_member_id, FALSE);
+            END LOOP;
+            RETURN expense_id;
+        END
+    $BODY$
+    LANGUAGE 'plpgsql'
+    SECURITY DEFINER;
+
+
 -- Remove an expense
 CREATE OR REPLACE FUNCTION delete_expense(expense_id INTEGER)
     RETURNS VOID AS
