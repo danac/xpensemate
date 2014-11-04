@@ -20,10 +20,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import hashlib
+
 class DBConfig:
     """
-    This class holds the various configuration parameters that can be
-    determined at runtime and is used by the factories.
+    This class holds the various database configuration parameters that
+    are looked-up at run-time.
+    
+    .. Note:: Currently, only the UTF-8 encoding is supported.
+        The database is assumed to use that encoding.
     """
     
     #: The database backend engine to use, among the ones in
@@ -45,6 +50,9 @@ class DBConfig:
     
     #: The character used as delimiter in concatenated strings returned from the database
     string_concat_delimiter = '|'
+    
+    #: The hashing algorithm used for the user's passwords
+    password_hashing_function = lambda x: hashlib.sha512(x.encode("utf-8")).hexdigest()
     
     
     

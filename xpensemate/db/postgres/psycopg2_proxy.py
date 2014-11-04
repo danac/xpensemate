@@ -23,6 +23,14 @@
 import psycopg2
 from xpensemate.db.proxy import AbstractDatabaseProxy
 
+# Convert psycopg2's default Decimal type to regular Python floats
+DEC2FLOAT = psycopg2.extensions.new_type(
+    psycopg2.extensions.DECIMAL.values,
+    'DEC2FLOAT',
+    lambda value, curs: float(value) if value is not None else None)
+psycopg2.extensions.register_type(DEC2FLOAT)
+
+
 class SingleConnectionProxy(AbstractDatabaseProxy):
     """
     Proxy to the PostgreSQL database engine, using the psycopg2 library
@@ -46,7 +54,7 @@ class SingleConnectionProxy(AbstractDatabaseProxy):
         cur = self.connection.cursor()
         try:
             cur.execute(query_string)
-            results = cur.fetchmany()
+            results = cur.fetchall()
         finally:
             self.connection.commit()
             cur.close()

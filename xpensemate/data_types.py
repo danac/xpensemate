@@ -23,13 +23,13 @@
 class Member:
     def __init__(self, member_id, name):
         #: Member ID
-        self.id = member_id
+        self.member_id = member_id
         #: Member name
         self.name = name 
 
 
 class MemberWithCredentials(Member):
-    def __init__(self, password_hash, password_salt, hash_function, **kwargs):
+    def __init__(self, password_hash, password_salt, hash_function, active, **kwargs):
         super().__init__(**kwargs)
         #: Hashed member password
         self.password_hash = password_hash
@@ -37,29 +37,27 @@ class MemberWithCredentials(Member):
         self.password_salt = password_salt
         #: Function handle to the hasher
         self.hash_function = hash_function
+        #: Flag indicating whether the user account is active
+        self.active = active
 
 
 class Group:
-    def __init__(self, group_id, name, member_balances):
+    def __init__(self, group_id, name, member_ids, member_balances):
         #: Group ID
-        self.id = member_id
+        self.group_id = group_id
         #: Group name
         self.name = name
+         #: Dictionary of (name, id) pairs
+        self.member_ids = member_ids
          #: Dictionary of (name, balance) pairs
-        self.balances = member_balances
+        self.member_balances = member_balances
         
-        @property
-        def members(self):
-            """
-             List of member names
-            """
-            return self.balances.keys()
-        
+    
 
 class Expense:
     def __init__(self, expense_id, description, date, amount, maker, members):
         #: Expense ID
-        self.id = expense_id
+        self.expense_id = expense_id
         #: Expense description
         self.description = description
         #: Expense date
@@ -75,7 +73,7 @@ class Expense:
 class Transfer:
     def __init__(self, transfer_id, date, amount, from_member, to_member):
         #: Expense ID
-        self.id = expense_id
+        self.transfer_id = transfer_id
         #: Transfer date
         self.date = date
         #: Transfer amount

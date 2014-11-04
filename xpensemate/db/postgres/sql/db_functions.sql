@@ -47,6 +47,19 @@ CREATE OR REPLACE FUNCTION get_member(name VARCHAR)
     LANGUAGE 'sql'
     SECURITY DEFINER;
 
+
+-- Return a group name based on a group id
+CREATE OR REPLACE FUNCTION get_group(id INTEGER)
+    RETURNS SETOF table_group AS
+    $BODY$
+        SELECT *
+        FROM table_group
+        WHERE id = $1
+    $BODY$
+    LANGUAGE 'sql'
+    SECURITY DEFINER;
+
+
 -- List the groups of a given member, based on a member id
 CREATE OR REPLACE FUNCTION get_groups(member_id INTEGER)
     RETURNS SETOF table_group AS
