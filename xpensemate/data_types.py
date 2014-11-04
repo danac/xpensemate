@@ -20,6 +20,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+"""
+This modules implements some simple containers to store results from the database.
+
+.. Note:: The convention here is that constructors takes **keyword-arguments whose names
+    match the attribute names**.
+"""
+
 class Member:
     def __init__(self, member_id, name):
         #: Member ID

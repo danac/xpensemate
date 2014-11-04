@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+    :maxdepth: 1
 
     xpensemate.db
     xpensemate.utils
@@ -12,27 +13,18 @@ Subpackages
 Submodules
 ----------
 
-xpensemate.config module
-------------------------
+xpensemate.config
++++++++++++++++++
 
 .. automodule:: xpensemate.config
     :members:
     :undoc-members:
     :show-inheritance:
 
-xpensemate.data_types module
-----------------------------
+xpensemate.data_types
++++++++++++++++++++++
 
 .. automodule:: xpensemate.data_types
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: xpensemate
     :members:
     :undoc-members:
     :show-inheritance:

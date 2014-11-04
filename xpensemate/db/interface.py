@@ -25,6 +25,7 @@ from xpensemate.config import DBConfig
 from xpensemate.db.proxy import DatabaseProxyFactory
 from xpensemate.data_types import MemberWithCredentials, Group, GroupWithExpenses, Expense, Transfer
 
+
 class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
     """
     This abstract class describes the interface to the storage
@@ -132,8 +133,11 @@ class StoredFunctionsInterface():
         
         
     def _instantiate_group(self, group_id, group_name):
+        # The DB returns rows of (id, name) pairs, and we want to build a dict with (name, id) pairs,
+        # so we need to transpose and invert
         ids_names = list(zip(*self._execute_stored_procedure("get_group_members", group_id)))
         names_ids = dict(zip(ids_names[1], ids_names[0]))
+        # Same thing, but without inverting the columns
         balances = dict(zip(*zip(*self._execute_stored_procedure("get_group_balances", group_id))))
         typed_group = Group(
             group_id=group_id,
