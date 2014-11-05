@@ -21,6 +21,7 @@
 #
 
 import hashlib
+import base64
 
 class DBConfig:
     """
@@ -38,12 +39,17 @@ class DBConfig:
     #: The database name
     database = "expense"
     
-    #: The database user
+    #: A database user allowed to use the interface selected in :data:`interface`
     user = "xpensemate_function_invoker"
     
     #: The users's password
     password = "lambda"
+
+    #: A database user allowed with admin rights over the database
+    super_user = "xpensemate_admin"
     
+    #: The super-user's password
+    super_password = "lambda"
     #: The interface implemented in the database, among the ones in
     #: :data:`xpensemate.db.interface.DatabaseInterfaceFactory.interface_class_dispatch`
     interface = "stored_functions"
