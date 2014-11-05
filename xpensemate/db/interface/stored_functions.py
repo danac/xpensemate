@@ -86,10 +86,15 @@ class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
         
         
     def _instantiate_group(self, group_id):
-        balances = dict(zip(*zip(*self._execute_stored_procedure("get_group_balances", group_id))))
+        # The DB returns a table whose columns are (member name, is owner, balance
+        columns = list(zip(*self._execute_stored_procedure("get_group_members", group_id)))))
+        balances = dict(zip(columns[0], columns[2]))
+        maker_index = columns[1].index(True)
+        maker = columns[maker_index]
         typed_group = Group(
             group_id=group_id,
             name=group_name,
+            maker=maker,
             member_balances = balances) 
         return typed_group
     
