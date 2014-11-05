@@ -61,7 +61,7 @@ Getters
         * active BOOLEAN
 
 
-.. C:function:: get_groups(member_id INTEGER)
+.. C:function:: get_groups(member_name VARCHAR)
 
     Returns the groups a user belongs to.
 
@@ -72,11 +72,12 @@ Getters
        
 .. C:function:: get_group_members(group_id INTEGER)
 
-    Returns the members of a group.
+    Returns the members of a group, with their respective balances in the group.
 
     :return:
-        * id INTEGER
         * name VARCHAR
+        * is_owner BOOLEAN
+        * balance NUMERIC
        
        
 .. C:function:: get_group_expenses(group_id INTEGER)
@@ -107,7 +108,7 @@ Getters
         * to_member VARCHAR
 
        
-.. C:function:: get_member_balance(member_id INTEGER, group_id INTEGER)
+.. C:function:: get_member_balance(member_name VARCHAR, group_id INTEGER)
 
     Returns the balance of a member in a given group. 
     This corresponds to the amount of money owed to the other group members
@@ -116,14 +117,6 @@ Getters
 
     :rtype: NUMERIC
 
-       
-.. C:function:: get_group_balances(group_id INTEGER)
-
-    Returns the balances of all members of a group. 
-
-    :return:
-        * member_name VARCHAR
-        * balance NUMERIC
 
 Setters
 +++++++
@@ -132,11 +125,10 @@ Setters
 
     Creates a new user.
 
-    :return: The ID of the newly created user
-    :rtype: INTEGER
+    :return: Nothing
 
 
-.. C:function:: insert_group(name VARCHAR, owner_id INTEGER, other_members VARIADIC INTEGER[])
+.. C:function:: insert_group(name VARCHAR, owner_name VARCHAR, other_members VARIADIC VARCHAR[])
 
     Creates a new group.
 
@@ -144,16 +136,39 @@ Setters
     :rtype: INTEGER
 
 
-.. C:function:: insert_group_member(new_member_id INTEGER, target_group_id INTEGER)
+.. C:function:: insert_group_member(new_member_name VARCHAR, target_group_id INTEGER)
 
     Adds an existing user to a group.
 
     :return: Nothing
+    
+    
+.. C:function:: insert_expense(date_info DATE, description VARCHAR, amount NUMERIC, target_group_id INTEGER, maker_name VARCHAR, other_members_name VARIADIC VARCHAR[])
 
+    Adds an expense in a group.
+
+    :return: The ID of the newly inserted expense.
+    :rtype: INTEGER
+    
+    
+.. C:function:: insert_transfer(date_info DATE, amount NUMERIC, target_group_id INTEGER, from_member_name VARCHAR, to_member_name VARCHAR)
+
+    Adds a trasnfer in a group.
+
+    :return: The ID of the newly inserted transfer.
+    :rtype: INTEGER
+    
 
 .. C:function:: delete_expense(expense_id INTEGER)
 
     Deletes an expense.
+
+    :return: Nothing
+    
+
+.. C:function:: delete_transfer(transfer_id INTEGER)
+
+    Deletes a transfer.
 
     :return: Nothing
 
