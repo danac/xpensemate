@@ -374,16 +374,19 @@ CREATE OR REPLACE FUNCTION insert_transfer(date_info DATE,
                                            target_group_id INTEGER,
                                            from_member_name VARCHAR,
                                            to_member_name VARCHAR)
-    RETURNS VOID AS
+    RETURNS INTEGER AS
     $BODY$
         DECLARE
             member_id_1 INTEGER;
             member_id_2 INTEGER;
+            new_transfer_id INTEGER;
         BEGIN
             member_id_1 := (SELECT id FROM table_member WHERE table_member.name = $4);
             member_id_2 := (SELECT id FROM table_member WHERE table_member.name = $5);
             INSERT INTO table_transfer (date_info, amount, group_id, from_member_id, to_member_id)
                 VALUES ($1, $2, $3, member_id_1, member_id_2);
+            new_transfer_id := (SELECT currval(pg_get_serial_sequence('table_transfer', 'id')));
+            RETURN new_transfer_id;
         END
     $BODY$
     LANGUAGE 'plpgsql'
