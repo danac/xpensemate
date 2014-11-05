@@ -22,7 +22,7 @@
 
 from xpensemate.data_types import MemberWithCredentials, Group, GroupWithExpenses, Expense, Transfer
 from xpensemate.db.interface.abstract_interface import AbstractDatabaseInterface
-from xpensemate.db.proxy import DatabaseProxyFactory
+from xpensemate.db.proxy.factory import DatabaseProxyFactory
 
 
 class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
@@ -33,7 +33,7 @@ class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
     
     def __init__(self):
         
-        #: Database proxy, implementing :class:`xpensemate.db.proxy.AbstractDatabaseProxy`
+        #: Database proxy, implementing :class:`xpensemate.db.proxy.abstract_procxy.AbstractDatabaseProxy`
         self.db_proxy = DatabaseProxyFactory.get_proxy()
         
         

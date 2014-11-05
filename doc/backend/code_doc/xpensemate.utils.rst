@@ -3,7 +3,7 @@ xpensemate.utils
 =================================================
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 10
 
     xpensemate.utils.partitioning
     xpensemate.utils.all_partitions

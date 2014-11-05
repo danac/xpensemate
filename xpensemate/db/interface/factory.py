@@ -22,6 +22,7 @@
 
 from xpensemate.db.interface.stored_functions import StoredFunctionsDatabaseInterface
 
+
 class DatabaseInterfaceFactory:
     """
     Factory class used to automatically instantiate a database factory

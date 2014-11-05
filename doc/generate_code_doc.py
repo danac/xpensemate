@@ -32,7 +32,7 @@ SPHINX_FILE_PATTERN = """
 =================================================
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 10
 
     {}
 
@@ -55,7 +55,7 @@ def find_source_files():
         package = folder.replace(os.sep, '.')
         modules = [f.split('.')[0] for f in files if f[-2:] == 'py' and "__" not in f]
         
-        if len(modules) == 0:
+        if "__init__.py" not in files:
             continue
         
         hierarchy[package] = modules

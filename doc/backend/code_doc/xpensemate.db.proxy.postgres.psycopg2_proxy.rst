@@ -1,14 +1,14 @@
 
-xpensemate.db.postgres.psycopg2_proxy
+xpensemate.db.proxy.postgres.psycopg2_proxy
 =================================================
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 10
 
     
 
 
-.. automodule:: xpensemate.db.postgres.psycopg2_proxy
+.. automodule:: xpensemate.db.proxy.postgres.psycopg2_proxy
     :members:
     :undoc-members:
     :show-inheritance:

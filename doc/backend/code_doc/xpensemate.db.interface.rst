@@ -3,7 +3,7 @@ xpensemate.db.interface
 =================================================
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 10
 
     xpensemate.db.interface.abstract_interface
     xpensemate.db.interface.factory

@@ -3,7 +3,7 @@ xpensemate.config
 =================================================
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 10
 
     
 

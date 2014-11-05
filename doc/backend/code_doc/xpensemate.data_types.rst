@@ -3,7 +3,7 @@ xpensemate.data_types
 =================================================
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 10
 
     
 

@@ -20,4 +20,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import xpensemate.db.postgres.psycopg2_proxy
+import xpensemate.db.proxy.abstract_proxy
+import xpensemate.db.proxy.factory
+import xpensemate.db.proxy.postgres

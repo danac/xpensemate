@@ -1,5 +1,5 @@
 
-xpensemate.db.interface.factory
+xpensemate.db.proxy.abstract_proxy
 =================================================
 
 .. toctree::
@@ -8,7 +8,7 @@ xpensemate.db.interface.factory
     
 
 
-.. automodule:: xpensemate.db.interface.factory
+.. automodule:: xpensemate.db.proxy.abstract_proxy
     :members:
     :undoc-members:
     :show-inheritance:

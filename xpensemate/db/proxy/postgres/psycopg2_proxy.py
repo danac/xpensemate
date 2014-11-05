@@ -21,7 +21,8 @@
 #
 
 import psycopg2
-from xpensemate.db.proxy import AbstractDatabaseProxy
+from xpensemate.db.proxy.abstract_proxy import AbstractDatabaseProxy
+
 
 # Convert psycopg2's default Decimal type to regular Python floats
 DEC2FLOAT = psycopg2.extensions.new_type(

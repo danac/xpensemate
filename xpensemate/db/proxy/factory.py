@@ -20,31 +20,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""
-This module defines a generic interface to a database backend.
-It defines 
-"""
-
-import abc
 import importlib
 from xpensemate.config import DBConfig
 
-
-class AbstractDatabaseProxy(metaclass=abc.ABCMeta):
-    """
-    This class describes the interface of a proxy to a datdabase engine.
-    """
-    
-    @abc.abstractmethod
-    def query(query_string):
-        """
-        Method used to execute queries on the database.
-        
-        :param str query_string: The query string
-        :return: An iterable over the result set
-        """
-        pass
- 
 
 class DatabaseProxyFactory:
     """
