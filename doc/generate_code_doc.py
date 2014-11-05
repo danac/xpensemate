@@ -24,7 +24,7 @@ import os
 import pprint
 
 SOURCE_ROOT = os.path.join(os.path.dirname(__file__), '..', 'xpensemate')
-DOC_ROOT = os.path.join(os.path.dirname(__file__), 'backend')
+DOC_ROOT = os.path.join(os.path.dirname(__file__), 'backend', 'code_doc')
 #DOC_ROOT = os.path.join('/tmp', 'backend')
 
 SPHINX_FILE_PATTERN = """

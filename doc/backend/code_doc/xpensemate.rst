@@ -1,16 +1,17 @@
 
-xpensemate.db
+xpensemate
 =================================================
 
 .. toctree::
     :maxdepth: 4
 
-    xpensemate.db.interface
-    xpensemate.db.proxy
-    xpensemate.db.postgres
+    xpensemate.utils
+    xpensemate.db
+    xpensemate.config
+    xpensemate.data_types
 
 
-.. automodule:: xpensemate.db
+.. automodule:: xpensemate
     :members:
     :undoc-members:
     :show-inheritance:

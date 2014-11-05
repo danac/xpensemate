@@ -22,5 +22,5 @@ Contents:
    
    intro/intro.rst
    db/db.rst
-   backend/xpensemate.rst
+   backend/backend.rst
    restapi/restapi.rst
