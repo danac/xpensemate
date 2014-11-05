@@ -147,6 +147,22 @@ END;
 $BODY$
 LANGUAGE 'plpgsql';
 
+
+
+CREATE OR REPLACE FUNCTION check_distinct_to_from_members()
+  RETURNS TRIGGER AS
+$BODY$
+BEGIN
+    IF NEW.from_member_id <> NEW.to_member_id THEN
+        RETURN NEW;
+    ELSE
+        RAISE EXCEPTION 'A transfer must involve two different members';
+    END IF;
+END;
+$BODY$
+LANGUAGE 'plpgsql';
+
+
 --
 -- TRIGGER DEFINITIONS
 --
@@ -178,3 +194,10 @@ CREATE TRIGGER check_transfer_member_group
     ON table_transfer
     FOR EACH ROW
     EXECUTE PROCEDURE check_transfer_member_group();
+    
+DROP TRIGGER IF EXISTS check_distinct_to_from_members ON table_transfer;
+CREATE TRIGGER check_distinct_to_from_members
+    BEFORE INSERT OR UPDATE
+    ON table_transfer
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_distinct_to_from_members();

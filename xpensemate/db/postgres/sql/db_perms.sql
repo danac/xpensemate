@@ -23,18 +23,18 @@ REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM PUBLIC;
 REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM PUBLIC;
 REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION get_user(VARCHAR) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION get_member(VARCHAR) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION get_groups(VARCHAR) TO xpensemate_function_invoker;
-GRANT EXECUTE ON FUNCTION get_group_members(VARCHAR) TO xpensemate_function_invoker;
-GRANT EXECUTE ON FUNCTION get_group_expenses(VARCHAR) TO xpensemate_function_invoker;
-GRANT EXECUTE ON FUNCTION get_group_transfers(VARCHAR) TO xpensemate_function_invoker;
-GRANT EXECUTE ON FUNCTION get_member_balance(VARCHAR, VARCHAR) TO xpensemate_function_invoker;
-GRANT EXECUTE ON FUNCTION get_group_balances(VARCHAR) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION get_group_members(INTEGER) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION get_group_expenses(INTEGER) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION get_group_transfers(INTEGER) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION get_member_balance(VARCHAR, INTEGER) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION get_group_balances(INTEGER) TO xpensemate_function_invoker;
 
 GRANT EXECUTE ON FUNCTION insert_member(VARCHAR, VARCHAR, VARCHAR) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION insert_group(VARCHAR, VARCHAR, VARIADIC VARCHAR[]) TO xpensemate_function_invoker;
-GRANT EXECUTE ON FUNCTION insert_group_member(VARCHAR, VARCHAR) TO xpensemate_function_invoker;
-GRANT EXECUTE ON FUNCTION insert_expense(DATE, VARCHAR, NUMERIC, VARCHAR, VARCHAR, VARIADIC VARCHAR[]) TO xpensemate_function_invoker;
-GRANT EXECUTE ON FUNCTION insert_transfer(DATE, VARCHAR, NUMERIC, VARCHAR, VARCHAR, VARCHAR) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION insert_group_member(VARCHAR, INTEGER) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION insert_expense(DATE, VARCHAR, NUMERIC, INTEGER, VARCHAR, VARIADIC VARCHAR[]) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION insert_transfer(DATE, NUMERIC, INTEGER, VARCHAR, VARCHAR) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION delete_expense(INTEGER) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION delete_transfer(INTEGER) TO xpensemate_function_invoker;

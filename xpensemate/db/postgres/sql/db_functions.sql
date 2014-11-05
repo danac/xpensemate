@@ -48,9 +48,10 @@ CREATE OR REPLACE FUNCTION get_member(name VARCHAR)
 
 -- List the groups of a given member, based on a member name
 CREATE OR REPLACE FUNCTION get_groups(member_name VARCHAR)
-    RETURNS SETOF VARCHAR AS
+    RETURNS SETOF table_group AS
     $BODY$
         SELECT
+            table_group.id AS group_id,
             table_group.name AS group_name
         FROM table_member_group
         INNER JOIN table_group
@@ -64,7 +65,7 @@ CREATE OR REPLACE FUNCTION get_groups(member_name VARCHAR)
 
 
 -- List the members of a group, based on a group name
-CREATE OR REPLACE FUNCTION get_group_members(group_name VARCHAR)
+CREATE OR REPLACE FUNCTION get_group_members(group_id INTEGER)
     RETURNS SETOF VARCHAR AS
     $BODY$
         SELECT
@@ -72,9 +73,7 @@ CREATE OR REPLACE FUNCTION get_group_members(group_name VARCHAR)
         FROM table_member_group
         INNER JOIN table_member
             ON table_member_group.member_id = table_member.id
-        INNER JOIN table_group
-            ON table_member_group.group_id = table_group.id
-        WHERE table_group.name = $1
+        WHERE table_member_group.group_id = $1
     $BODY$
     LANGUAGE 'sql'
     SECURITY DEFINER;
@@ -90,7 +89,7 @@ CREATE TYPE expense_t AS (
     expense_maker VARCHAR,
     expense_members VARCHAR);
     
-CREATE OR REPLACE FUNCTION get_group_expenses(group_name VARCHAR)
+CREATE OR REPLACE FUNCTION get_group_expenses(group_id INTEGER)
     RETURNS SETOF expense_t AS
     $BODY$
         SELECT
@@ -110,9 +109,7 @@ CREATE OR REPLACE FUNCTION get_group_expenses(group_name VARCHAR)
                 AND expense_maker.made_expense IS TRUE
         INNER JOIN table_member expense_maker_name
             ON expense_maker_name.id = expense_maker.member_id
-        INNER JOIN table_group
-            ON table_expense.group_id = table_group.id
-        WHERE table_group.name = $1
+        WHERE table_expense.group_id = $1
         GROUP BY
             table_expense.id,
             table_expense.date_info,
@@ -134,7 +131,7 @@ CREATE TYPE transfer_t AS (
     from_member VARCHAR,
     to_member VARCHAR);
     
-CREATE OR REPLACE FUNCTION get_group_transfers(group_name VARCHAR)
+CREATE OR REPLACE FUNCTION get_group_transfers(group_id INTEGER)
     RETURNS SETOF transfer_t AS
     $BODY$
         SELECT
@@ -148,9 +145,7 @@ CREATE OR REPLACE FUNCTION get_group_transfers(group_name VARCHAR)
             ON from_members_lookup.id = table_transfer.from_member_id
         INNER JOIN table_member to_members_lookup
             ON to_members_lookup.id = table_transfer.to_member_id
-        INNER JOIN table_group
-            ON table_transfer.group_id = table_group.id
-        WHERE table_group.name = $1
+        WHERE table_transfer.group_id = $1
         ORDER BY table_transfer.date_info ASC
     $BODY$
     LANGUAGE 'sql'
@@ -158,7 +153,7 @@ CREATE OR REPLACE FUNCTION get_group_transfers(group_name VARCHAR)
 
 
 -- Get the balance of a given member in a given group
-CREATE OR REPLACE FUNCTION get_member_balance(member_name VARCHAR, group_name VARCHAR)
+CREATE OR REPLACE FUNCTION get_member_balance(member_name VARCHAR, group_id INTEGER)
     RETURNS NUMERIC AS
     $BODY$
         -- Difference of the amounts to pay and already paid
@@ -183,11 +178,9 @@ CREATE OR REPLACE FUNCTION get_member_balance(member_name VARCHAR, group_name VA
                     FROM table_expense
                     INNER JOIN table_expense_member
                         ON table_expense_member.expense_id = table_expense.id
-                    INNER JOIN table_group
-                        ON table_expense.group_id = table_group.id
                     INNER JOIN table_member
                         ON table_expense_member.member_id = table_member.id
-                    WHERE table_group.name = $2
+                    WHERE table_expense.group_id = $2
                         AND table_member.name = $1
                 )
                 GROUP BY table_expense_member.expense_id
@@ -204,11 +197,9 @@ CREATE OR REPLACE FUNCTION get_member_balance(member_name VARCHAR, group_name VA
             FROM table_expense
             INNER JOIN table_expense_member
                 ON table_expense_member.expense_id = table_expense.id
-            INNER JOIN table_group
-                ON table_expense.group_id = table_group.id
             INNER JOIN table_member
                 ON table_expense_member.member_id = table_member.id
-            WHERE table_group.name = $2
+            WHERE table_expense.group_id = $2
                 AND table_member.name = $1
                 AND table_expense_member.made_expense IS TRUE
         ) AS share_to_pay_agg,
@@ -216,22 +207,18 @@ CREATE OR REPLACE FUNCTION get_member_balance(member_name VARCHAR, group_name VA
             -- Transfers matching the member and the group, for which the member received money,
             SELECT SUM(table_transfer.amount) AS amount
             FROM table_transfer
-            INNER JOIN table_group
-                ON table_transfer.group_id = table_group.id
             INNER JOIN table_member
                 ON table_transfer.to_member_id = table_member.id
-            WHERE table_group.name = $2
+            WHERE table_transfer.group_id = $2
                 AND table_member.name = $1
         ) AS transfers_received_agg,
         (
             -- Transfers matching the member and the group, for which the member paid money,
             SELECT SUM(table_transfer.amount) AS amount
             FROM table_transfer
-            INNER JOIN table_group
-                ON table_transfer.group_id = table_group.id
             INNER JOIN table_member
                 ON table_transfer.from_member_id = table_member.id
-            WHERE table_group.name = $2
+            WHERE table_transfer.group_id = $2
                 AND table_member.name = $1
         ) AS transfers_made_agg
     $BODY$
@@ -243,7 +230,7 @@ CREATE OR REPLACE FUNCTION get_member_balance(member_name VARCHAR, group_name VA
 DROP TYPE IF EXISTS member_balance_t CASCADE;
 CREATE TYPE member_balance_t AS (member_name VARCHAR, balance NUMERIC);
 
-CREATE OR REPLACE FUNCTION get_group_balances(group_name VARCHAR)
+CREATE OR REPLACE FUNCTION get_group_balances(group_id INTEGER)
     RETURNS SETOF member_balance_t AS
     $BODY$
         DECLARE
@@ -255,9 +242,7 @@ CREATE OR REPLACE FUNCTION get_group_balances(group_name VARCHAR)
                 FROM table_member_group
                 INNER JOIN table_member
                     ON table_member_group.member_id = table_member.id
-                INNER JOIN table_group
-                    ON table_member_group.group_id = table_group.id
-                WHERE table_group.name = $1
+                WHERE table_member_group.group_id = $1
             )
             LOOP
                 result_row.member_name = member;
@@ -299,7 +284,7 @@ CREATE OR REPLACE FUNCTION insert_member(member_name VARCHAR,
 CREATE OR REPLACE FUNCTION insert_group(name VARCHAR,
                                         owner_name VARCHAR,
                                         other_members VARIADIC VARCHAR[])
-    RETURNS VOID AS
+    RETURNS INTEGER AS
     $BODY$
         DECLARE
             group_id INTEGER;
@@ -309,15 +294,16 @@ CREATE OR REPLACE FUNCTION insert_group(name VARCHAR,
             INSERT INTO table_group (name)
                 VALUES ($1);
             group_id := (SELECT currval(pg_get_serial_sequence('table_group', 'id')));
-            new_member_id := (SELECT id FROM table_member WHERE name = $2);
+            new_member_id := (SELECT table_member.id FROM table_member WHERE table_member.name = $2);
             INSERT INTO table_member_group (member_id, group_id, is_owner)
                 VALUES (new_member_id, group_id, TRUE);
             FOR other_member_name IN (SELECT i FROM UNNEST($3) AS i )
             LOOP
-                new_member_id := (SELECT id FROM table_member WHERE name = other_member_name);
+                new_member_id := (SELECT table_member.id FROM table_member WHERE table_member.name = other_member_name);
                 INSERT INTO table_member_group (member_id, group_id, is_owner)
                     VALUES (new_member_id, group_id, FALSE);
             END LOOP;
+            RETURN group_id;
         END
     $BODY$
     LANGUAGE 'plpgsql'
@@ -326,17 +312,15 @@ CREATE OR REPLACE FUNCTION insert_group(name VARCHAR,
     
 -- Create a new group member
 CREATE OR REPLACE FUNCTION insert_group_member(new_member_name VARCHAR,
-                                               target_group_name VARCHAR)
+                                               target_group_id INTEGER)
     RETURNS VOID AS
     $BODY$
         DECLARE
-            target_group_id INTEGER;
             new_member_id INTEGER;
         BEGIN
-            new_member_id := (SELECT id FROM table_member WHERE name = $1);
-            target_group_id := (SELECT id FROM table_group WHERE name = $2);
+            new_member_id := (SELECT table_member.id FROM table_member WHERE table_member.name = $1);
             INSERT INTO table_member_group (member_id, group_id, is_owner)
-                VALUES (new_member_id, target_group_id, FALSE);
+                VALUES (new_member_id, $2, FALSE);
         END
     $BODY$
     LANGUAGE 'plpgsql'
@@ -346,31 +330,30 @@ CREATE OR REPLACE FUNCTION insert_group_member(new_member_name VARCHAR,
 CREATE OR REPLACE FUNCTION insert_expense(date_info DATE,
                                           description VARCHAR,
                                           amount NUMERIC,
-                                          group_name VARCHAR,
+                                          target_group_id INTEGER,
                                           maker_name VARCHAR,
                                           other_members_name VARIADIC VARCHAR[])
-    RETURNS VOID AS
+    RETURNS INTEGER AS
     $BODY$
         DECLARE
-            expense_id INTEGER;
+            new_expense_id INTEGER;
             new_member_id INTEGER;
-            target_group_id INTEGER;
             maker_id INTEGER;
             other_member_name VARCHAR;
         BEGIN
-            target_group_id := (SELECT id FROM table_group WHERE name = $4);
             INSERT INTO table_expense (date_info, description, amount, group_id)
-                VALUES ($1, $2, $3, target_group_id);
-            expense_id := (SELECT currval(pg_get_serial_sequence('table_expense', 'id')));
-            new_member_id := (SELECT id FROM table_member WHERE name = $5);
+                VALUES ($1, $2, $3, $4);
+            new_expense_id := (SELECT currval(pg_get_serial_sequence('table_expense', 'id')));
+            new_member_id := (SELECT id FROM table_member WHERE table_member.name = $5);
             INSERT INTO table_expense_member (expense_id, member_id, made_expense)
-                VALUES (expense_id, new_member_id, TRUE);
+                VALUES (new_expense_id, new_member_id, TRUE);
             FOR other_member_name IN (SELECT i FROM UNNEST($6) AS i )
             LOOP
-                new_member_id := (SELECT id FROM table_member WHERE name = other_member_name);
+                new_member_id := (SELECT id FROM table_member WHERE table_member.name = other_member_name);
                 INSERT INTO table_expense_member (expense_id, member_id, made_expense)
-                    VALUES (expense_id, new_member_id, FALSE);
+                    VALUES (new_expense_id, new_member_id, FALSE);
             END LOOP;
+            RETURN new_expense_id;
         END
     $BODY$
     LANGUAGE 'plpgsql'
@@ -378,9 +361,8 @@ CREATE OR REPLACE FUNCTION insert_expense(date_info DATE,
 
 
 CREATE OR REPLACE FUNCTION insert_transfer(date_info DATE,
-                                           description VARCHAR,
                                            amount NUMERIC,
-                                           group_name VARCHAR,
+                                           target_group_id INTEGER,
                                            from_member_name VARCHAR,
                                            to_member_name VARCHAR)
     RETURNS VOID AS
@@ -388,13 +370,11 @@ CREATE OR REPLACE FUNCTION insert_transfer(date_info DATE,
         DECLARE
             member_id_1 INTEGER;
             member_id_2 INTEGER;
-            target_group_id INTEGER;
         BEGIN
-            target_group_id := (SELECT id FROM table_group WHERE name = $4);
-            member_id_1 := (SELECT id FROM table_member WHERE name = $5);
-            member_id_2 := (SELECT id FROM table_member WHERE name = $6);
-            INSERT INTO table_transfer (date_info, description, amount, group_id, from_member_id, to_member_id)
-                VALUES ($1, $2, $3, target_group_id, member_id_1, member_id_2);
+            member_id_1 := (SELECT id FROM table_member WHERE table_member.name = $4);
+            member_id_2 := (SELECT id FROM table_member WHERE table_member.name = $5);
+            INSERT INTO table_transfer (date_info, amount, group_id, from_member_id, to_member_id)
+                VALUES ($1, $2, $3, member_id_1, member_id_2);
         END
     $BODY$
     LANGUAGE 'plpgsql'
