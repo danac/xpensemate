@@ -1,17 +1,14 @@
 
-xpensemate
+xpensemate.db.proxy.postgres.deployment
 =================================================
 
 .. toctree::
     :maxdepth: 10
 
-    xpensemate.utils
-    xpensemate.config
-    xpensemate.data_types
-    xpensemate.db
+    
 
 
-.. automodule:: xpensemate
+.. automodule:: xpensemate.db.proxy.postgres.deployment
     :members:
     :undoc-members:
     :show-inheritance:

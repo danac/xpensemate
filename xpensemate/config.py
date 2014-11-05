@@ -33,7 +33,7 @@ class DBConfig:
     """
     
     #: The database backend engine to use, among the ones in
-    #: :data:`xpensemate.db.proxy.DatabaseProxyFactory.proxy_module_dispatch`
+    #: :data:`xpensemate.db.proxy.factory.DatabaseProxyFactory.proxy_module_dispatch`
     engine = "postgres"
     
     #: The database name
@@ -45,13 +45,14 @@ class DBConfig:
     #: The users's password
     password = "lambda"
 
-    #: A database user allowed with admin rights over the database
+    #: A database user with admin rights over the database
     super_user = "xpensemate_admin"
     
     #: The super-user's password
     super_password = "lambda"
+    
     #: The interface implemented in the database, among the ones in
-    #: :data:`xpensemate.db.interface.DatabaseInterfaceFactory.interface_class_dispatch`
+    #: :data:`xpensemate.db.interface.factory.DatabaseInterfaceFactory.interface_class_dispatch`
     interface = "stored_functions"
     
     #: The character used as delimiter in concatenated strings returned from the database

@@ -42,10 +42,11 @@ class DatabaseInterfaceFactory:
     @classmethod
     def get_interface(cls):
         """
-        Returns the unique database proxy, after instantiating it
-        if necessary
+        Returns the unique database interface, after instantiating it
+        if necessary.
         
-        :return: The singleton instance to the database proxy
+        :return: A singleton instance implementing
+                 :class:`AbstractDatabaseInterface <xpensemate.db.interface.abstract_interface.AbstractDatabaseInterface>`
         """
         
         if cls.db_interface_instance is None:

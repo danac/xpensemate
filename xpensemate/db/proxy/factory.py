@@ -45,8 +45,9 @@ class DatabaseProxyFactory:
         Returns the unique database proxy, after instantiating it
         if necessary
         
-        :return: The singleton instance to the database proxy
-        """
+        :return: A singleton instance implementing
+                 :class:`AbstractDatabaseProxy <xpensemate.db.proxy.abstract_proxy.AbstractDatabaseProxy>`
+         """
         
         if cls.db_proxy_instance is None:
             cls._instantiate_proxy_instance()
