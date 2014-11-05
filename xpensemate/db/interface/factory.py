@@ -21,7 +21,7 @@
 #
 
 from xpensemate.db.interface.stored_functions import StoredFunctionsDatabaseInterface
-
+from xpensemate.config import DBConfig
 
 class DatabaseInterfaceFactory:
     """
@@ -58,8 +58,8 @@ class DatabaseInterfaceFactory:
     def _instantiate_interface_instance(cls):
         interface_type = DBConfig.interface
         try:
-            interface_class = cls.interface_class_dispatch[interface_type]()
-            cls.db_interface_instance = interface_class
+            interface_class = cls.interface_class_dispatch[interface_type]
+            cls.db_interface_instance = interface_class()
             
         except KeyError:
             message = "Database interface not implemented: {}".format(interface_type)

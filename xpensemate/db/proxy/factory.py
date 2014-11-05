@@ -36,7 +36,7 @@ class DatabaseProxyFactory:
     #: Dictionary mapping the possible proxies in
     #: :data:`xpensemate.config.DBConfig.engine` to module paths
     proxy_module_dispatch = {
-        "postgres" : "xpensemate.db.postgres.psycopg2_proxy"
+        "postgres" : "xpensemate.db.proxy.postgres.psycopg2_proxy"
     }
     
     @classmethod
