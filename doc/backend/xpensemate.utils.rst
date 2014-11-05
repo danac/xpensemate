@@ -1,45 +1,18 @@
-xpensemate.utils package
-========================
 
-Submodules
-----------
+xpensemate.utils
+=================================================
 
-xpensemate.utils.all_partitions
-+++++++++++++++++++++++++++++++
+.. toctree::
+    :maxdepth: 4
 
-.. automodule:: xpensemate.utils.all_partitions
-    :members:
-    :undoc-members:
-    :show-inheritance:
+    xpensemate.utils.partitioning
+    xpensemate.utils.all_partitions
+    xpensemate.utils.partition_list
+    xpensemate.utils.cache
+    xpensemate.utils.benchmark
 
-xpensemate.utils.benchmark
-++++++++++++++++++++++++++
 
-.. automodule:: xpensemate.utils.benchmark
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-xpensemate.utils.cache
-++++++++++++++++++++++
-
-.. automodule:: xpensemate.utils.cache
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-xpensemate.utils.partition_list
-+++++++++++++++++++++++++++++++
-
-.. automodule:: xpensemate.utils.partition_list
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-xpensemate.utils.partitioning
-+++++++++++++++++++++++++++++
-
-.. automodule:: xpensemate.utils.partitioning
+.. automodule:: xpensemate.utils
     :members:
     :undoc-members:
     :show-inheritance:

@@ -1,13 +1,15 @@
-xpensemate.db.postgres package
-==============================
 
-Submodules
-----------
+xpensemate.db.postgres
+=================================================
 
-xpensemate.db.postgres.psycopg2_proxy module
-++++++++++++++++++++++++++++++++++++++++++++
+.. toctree::
+    :maxdepth: 4
 
-.. automodule:: xpensemate.db.postgres.psycopg2_proxy
+    xpensemate.db.postgres.psycopg2_proxy
+
+
+.. automodule:: xpensemate.db.postgres
     :members:
     :undoc-members:
     :show-inheritance:
+

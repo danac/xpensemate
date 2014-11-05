@@ -176,8 +176,3 @@ pseudoxml:
 	@echo
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 	
-apidoc:
-	sphinx-apidoc -f -o backend/ ../xpensemate
-	@echo
-	@echo "Apidoc completed."
-	

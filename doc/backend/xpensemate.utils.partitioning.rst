@@ -1,17 +1,14 @@
 
-xpensemate
+xpensemate.utils.partitioning
 =================================================
 
 .. toctree::
     :maxdepth: 4
 
-    xpensemate.config
-    xpensemate.data_types
-    xpensemate.db
-    xpensemate.utils
+    
 
 
-.. automodule:: xpensemate
+.. automodule:: xpensemate.utils.partitioning
     :members:
     :undoc-members:
     :show-inheritance:

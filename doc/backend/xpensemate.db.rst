@@ -1,29 +1,17 @@
-xpensemate.db package
-=====================
 
-Subpackages
------------
+xpensemate.db
+=================================================
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 4
 
+    xpensemate.db.interface
+    xpensemate.db.proxy
     xpensemate.db.postgres
 
-Submodules
-----------
 
-xpensemate.db.interface
-+++++++++++++++++++++++
-
-.. automodule:: xpensemate.db.interface
+.. automodule:: xpensemate.db
     :members:
     :undoc-members:
     :show-inheritance:
 
-xpensemate.db.proxy
-+++++++++++++++++++
-
-.. automodule:: xpensemate.db.proxy
-    :members:
-    :undoc-members:
-    :show-inheritance:
