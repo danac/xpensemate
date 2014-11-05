@@ -53,7 +53,7 @@ def find_source_files():
 
         folder = os.path.relpath(root, os.path.join(SOURCE_ROOT, '..'))
         package = folder.replace(os.sep, '.')
-        modules = [f.split('.')[0] for f in files if f[-2:] == 'py' and "__" not in f]
+        modules = [f.split('.')[0] for f in files if f[-2:] == 'py' and "__" not in f and f[0] != '_']
         
         if "__init__.py" not in files:
             continue

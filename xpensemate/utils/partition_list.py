@@ -20,14 +20,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os.path
+
+from xpensemate.utils._partition_list_inline import partitions as p
 
 class PartitionList:
     """
-    Contains a machine-generated dictionary of all partitions of a set into
+    Wrapper around a dictionary of all partitions of a set into
     subsets of size larger than 1.
     
-    Contents of the ``partitions`` attribute:
+    Exposes a dictionary interface, with the following contents:
 
     .. code-block:: python
     
@@ -52,7 +53,7 @@ class PartitionList:
         
     """    
     def __init__(self):
-        self.partitions = dict()
+        self.partitions = p
     
     def __getitem__(self, key):
         return self.partitions[key]
@@ -65,6 +66,3 @@ class PartitionList:
 
 #: Instance of :class:`PartitionList`.
 partitions = PartitionList()
-
-with open(os.path.join(os.path.dirname(__file__),'partition_list.inl'), 'r') as f:
-    exec(f.read())

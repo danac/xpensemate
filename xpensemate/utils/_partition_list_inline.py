@@ -1,3 +1,4 @@
+partitions = dict()
 partitions[1] = []
 partitions[2] = []
 partitions[3] = []

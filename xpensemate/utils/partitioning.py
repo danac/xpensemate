@@ -156,7 +156,7 @@ def apply_partitions(l):
         raise NotImplementedError("Partitioning not implemented for sets of {} elements")
 
 
-def create_partition_list(file_path = "partition_list.inl", upper_limit = 10, variable_name = "partitions"):
+def create_partition_list(file_path = "_partition_list_inline.py", upper_limit = 10, variable_name = "partitions"):
     """
     Generates Python code based on the output of :func:`generate_partitioning`
     that is exec'd in :mod:`xpensemate.utils.partition_list`
@@ -169,6 +169,7 @@ def create_partition_list(file_path = "partition_list.inl", upper_limit = 10, va
         
     """
     with open(file_path, 'w') as f:
+        f.write("{} = dict()".format(variable_name)
         for i in range(1, upper_limit+1):
             print("Generating partitions for sets of size {}".format(i))
             src = "{}[{}] = {}\n".format(variable_name, i, repr(list(generate_partitions(i))))
