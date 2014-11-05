@@ -169,7 +169,7 @@ def create_partition_list(file_path = "_partition_list_inline.py", upper_limit =
         
     """
     with open(file_path, 'w') as f:
-        f.write("{} = dict()".format(variable_name)
+        f.write("{} = dict()".format(variable_name))
         for i in range(1, upper_limit+1):
             print("Generating partitions for sets of size {}".format(i))
             src = "{}[{}] = {}\n".format(variable_name, i, repr(list(generate_partitions(i))))
