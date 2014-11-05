@@ -45,11 +45,11 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
     
     
     @abc.abstractmethod
-    def get_groups(self, member_id):
+    def get_member_groups(self, member_name):
         """
         Returns the groups a user belongs to.
      
-        :param int member_id: The id number of the user.
+        :param str member_name: The name of the user.
      
         :return: An iterable over :class:`xpensemate.data_types.Group` intances.
         """
@@ -57,7 +57,7 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
     
     
     @abc.abstractmethod
-    def get_group_expenses(self, group_id):
+    def get_group_with_movements(self, group_id):
         """
         Returns the expenses of a group.
      
@@ -87,26 +87,22 @@ class StoredFunctionsInterface():
         assert len(rows) == 1, "Found duplicate member names!"
         s=rows[0]
         result = MemberWithCredentials(
-            member_id = s[0],
-            name = s[1],
-            password_hash = s[2],
-            password_salt = s[3],
+            name = s[0],
+            password_hash = s[1],
+            password_salt = s[2],
             hash_function = DBConfig.password_hashing_function,
-            active = s[4])
+            active = s[3])
         
         return result
         
         
-    def get_groups(self, member_id):
-        for group in self._execute_stored_procedure("get_groups", member_id):
-            group_id = group[0]
-            group_name = group[1]
-            yield self._instantiate_group(group_id, group_name)
+    def get_member_groups(self, member_name):
+        for group in self._execute_stored_procedure("get_groups", member_name):
+            yield self._instantiate_group(group[0])
     
 
-    def get_group_expenses(self, group_id):
-        group_name = self._execute_stored_procedure("get_group", group_id)[0][1]
-        group = self._instantiate_group(group_id, group_name)
+    def get_group_with_movements(self, group_id):
+        group = self._instantiate_group(group_id)
         
         expenses = []
         for row in self._execute_stored_procedure("get_group_expenses", group_id):
@@ -132,17 +128,11 @@ class StoredFunctionsInterface():
         return GroupWithExpenses(expenses=expenses, transfers=transfers, **group.__dict__)
         
         
-    def _instantiate_group(self, group_id, group_name):
-        # The DB returns rows of (id, name) pairs, and we want to build a dict with (name, id) pairs,
-        # so we need to transpose and invert
-        ids_names = list(zip(*self._execute_stored_procedure("get_group_members", group_id)))
-        names_ids = dict(zip(ids_names[1], ids_names[0]))
-        # Same thing, but without inverting the columns
+    def _instantiate_group(self, group_id):
         balances = dict(zip(*zip(*self._execute_stored_procedure("get_group_balances", group_id))))
         typed_group = Group(
             group_id=group_id,
             name=group_name,
-            member_ids = names_ids,
             member_balances = balances) 
         return typed_group
     

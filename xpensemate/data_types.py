@@ -28,9 +28,7 @@ This modules implements some simple containers to store results from the databas
 """
 
 class Member:
-    def __init__(self, member_id, name):
-        #: Member ID
-        self.member_id = member_id
+    def __init__(self, name):
         #: Member name
         self.name = name 
 
@@ -49,17 +47,14 @@ class MemberWithCredentials(Member):
 
 
 class Group:
-    def __init__(self, group_id, name, member_ids, member_balances):
+    def __init__(self, group_id, name, member_balances):
         #: Group ID
         self.group_id = group_id
         #: Group name
         self.name = name
-         #: Dictionary of (name, id) pairs
-        self.member_ids = member_ids
-         #: Dictionary of (name, balance) pairs
+        #: Dictionary of (name, balance) pairs
         self.member_balances = member_balances
         
-    
 
 class Expense:
     def __init__(self, expense_id, description, date, amount, maker, members):
@@ -79,7 +74,7 @@ class Expense:
 
 class Transfer:
     def __init__(self, transfer_id, date, amount, from_member, to_member):
-        #: Expense ID
+        #: Transfer ID
         self.transfer_id = transfer_id
         #: Transfer date
         self.date = date
