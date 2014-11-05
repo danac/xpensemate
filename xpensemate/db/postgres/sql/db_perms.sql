@@ -29,7 +29,6 @@ GRANT EXECUTE ON FUNCTION get_group_members(INTEGER) TO xpensemate_function_invo
 GRANT EXECUTE ON FUNCTION get_group_expenses(INTEGER) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION get_group_transfers(INTEGER) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION get_member_balance(VARCHAR, INTEGER) TO xpensemate_function_invoker;
-GRANT EXECUTE ON FUNCTION get_group_balances(INTEGER) TO xpensemate_function_invoker;
 
 GRANT EXECUTE ON FUNCTION insert_member(VARCHAR, VARCHAR, VARCHAR) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION insert_group(VARCHAR, VARCHAR, VARIADIC VARCHAR[]) TO xpensemate_function_invoker;

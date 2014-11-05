@@ -22,7 +22,6 @@
 
 import abc
 from xpensemate.config import DBConfig
-from xpensemate.db.proxy import DatabaseProxyFactory
 from xpensemate.data_types import MemberWithCredentials, Group, GroupWithExpenses, Expense, Transfer
 
 
@@ -64,6 +63,39 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
         :param int group_id: The id number of the group.
      
         :return: A :class:`xpensemate.data_types.GroupWithExpenses` instance.
+        """
+        pass
+        
+        
+    @abc.abstractmethod
+    def insert_member(self, member):
+        """
+        Inserts a new member.
+     
+        :param member: The member to insert
+        :type member: :class:`xpensemate.data_types.MemberWithCredentials`
+        :return: Nothing
+        """
+        pass
+        
+        
+    @abc.abstractmethod
+    def insert_group(self, group):
+        """
+        Inserts a new member.
+     
+        :param group: The group to insert.
+        :type group: :class:`xpensemate.data_types.Group`
+        :return: Nothing
+        
+        .. Note:: The following happens with the attribute of the argument:
+            
+            * the :data:`xpensemate.data_types.Group.group_id` field
+              of the argument is ignored.
+                
+            * The keys in its :data:`xpensemate.data_types.Group.member_balances`
+              are used to determine the group members. The balance values are ignored.
+            
         """
         pass
 
@@ -148,48 +180,3 @@ class StoredFunctionsInterface():
         sql_query = "SELECT * FROM {}({});".format(procedure_name, ', '.join(quoted_args))
         
         return self.db_proxy.query(sql_query)
-
-    
-class DatabaseInterfaceFactory:
-    """
-    Factory class used to automatically instantiate a database factory
-    based on the type of interface defined in :class:`xpensemate.config.DBConfig`.
-    """
-    
-    #: Singleton instance of the database interface
-    db_interface_instance = None
-    
-    #: Dictionary mapping the possible interface types in
-    #: :data:`xpensemate.config.DBConfig.interface` to classes
-    interface_class_dispatch = {
-        "stored_functions" : StoredFunctionsInterface
-    }
-    
-    
-    @classmethod
-    def get_interface(cls):
-        """
-        Returns the unique database proxy, after instantiating it
-        if necessary
-        
-        :return: The singleton instance to the database proxy
-        """
-        
-        if cls.db_interface_instance is None:
-            cls._instantiate_interface_instance()
-        
-        return cls.db_interface_instance
-        
-        
-    @classmethod
-    def _instantiate_interface_instance(cls):
-        interface_type = DBConfig.interface
-        try:
-            interface_class = cls.interface_class_dispatch[interface_type]()
-            cls.db_interface_instance = interface_class
-            
-        except KeyError:
-            message = "Database interface not implemented: {}".format(interface_type)
-            raise NotImplementedError(message)
-        
-    

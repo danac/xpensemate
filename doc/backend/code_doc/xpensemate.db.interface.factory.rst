@@ -1,17 +1,14 @@
 
-xpensemate
+xpensemate.db.interface.factory
 =================================================
 
 .. toctree::
     :maxdepth: 4
 
-    xpensemate.utils
-    xpensemate.config
-    xpensemate.data_types
-    xpensemate.db
+    
 
 
-.. automodule:: xpensemate
+.. automodule:: xpensemate.db.interface.factory
     :members:
     :undoc-members:
     :show-inheritance:

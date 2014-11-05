@@ -5,9 +5,9 @@ xpensemate.db
 .. toctree::
     :maxdepth: 4
 
-    xpensemate.db.postgres
     xpensemate.db.interface
     xpensemate.db.proxy
+    xpensemate.db.postgres
 
 
 .. automodule:: xpensemate.db

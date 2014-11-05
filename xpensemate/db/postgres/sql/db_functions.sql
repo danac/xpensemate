@@ -65,18 +65,23 @@ CREATE OR REPLACE FUNCTION get_groups(member_name VARCHAR)
 
 
 -- List the members of a group, based on a group name
-CREATE OR REPLACE FUNCTION get_group_members(group_id INTEGER)
-    RETURNS SETOF VARCHAR AS
-    $BODY$
-        SELECT
-            table_member.name AS member_name
-        FROM table_member_group
-        INNER JOIN table_member
-            ON table_member_group.member_id = table_member.id
-        WHERE table_member_group.group_id = $1
-    $BODY$
-    LANGUAGE 'sql'
-    SECURITY DEFINER;
+--DROP TYPE IF EXISTS group_member_t CASCADE;
+--CREATE TYPE group_member_t AS (
+    --name VARCHAR,
+    --is_owner BOOLEAN);
+--CREATE OR REPLACE FUNCTION get_group_members(group_id INTEGER)
+    --RETURNS SETOF group_member_t AS
+    --$BODY$
+        --SELECT
+            --table_member.name AS member_name,
+            --table_member_group.is_owner
+        --FROM table_member_group
+        --INNER JOIN table_member
+            --ON table_member_group.member_id = table_member.id
+        --WHERE table_member_group.group_id = $1
+    --$BODY$
+    --LANGUAGE 'sql'
+    --SECURITY DEFINER;
 
 
 -- List the expenses of a group, based on a group name
@@ -227,27 +232,31 @@ CREATE OR REPLACE FUNCTION get_member_balance(member_name VARCHAR, group_id INTE
     
 
 -- List the balances of all members of a group
-DROP TYPE IF EXISTS member_balance_t CASCADE;
-CREATE TYPE member_balance_t AS (member_name VARCHAR, balance NUMERIC);
-
-CREATE OR REPLACE FUNCTION get_group_balances(group_id INTEGER)
-    RETURNS SETOF member_balance_t AS
+DROP TYPE IF EXISTS group_member_balance_t CASCADE;
+CREATE TYPE group_member_balance_t AS (
+    name VARCHAR,
+    is_owner BOOLEAN,
+    balance NUMERIC);
+CREATE OR REPLACE FUNCTION get_group_members(group_id INTEGER)
+    RETURNS SETOF group_member_balance_t AS
     $BODY$
         DECLARE
-            member VARCHAR;
-            result_row member_balance_t;
+            member group_member_balance_t;
         BEGIN
             FOR member IN (
-                SELECT table_member.name
+                SELECT
+                    table_member.name,
+                    table_member_group.is_owner,
+                    0.0::NUMERIC
+                    
                 FROM table_member_group
                 INNER JOIN table_member
                     ON table_member_group.member_id = table_member.id
                 WHERE table_member_group.group_id = $1
             )
             LOOP
-                result_row.member_name = member;
-                result_row.balance = get_member_balance(member, $1);
-                RETURN NEXT result_row;
+                member.balance = get_member_balance(member.name, $1);
+                RETURN NEXT member;
             END LOOP;
             RETURN;
         END

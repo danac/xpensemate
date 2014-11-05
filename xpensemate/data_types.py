@@ -47,12 +47,14 @@ class MemberWithCredentials(Member):
 
 
 class Group:
-    def __init__(self, group_id, name, member_balances):
+    def __init__(self, group_id, name, maker, member_balances):
         #: Group ID
         self.group_id = group_id
         #: Group name
         self.name = name
-        #: Dictionary of (name, balance) pairs
+        #: Name of the group maker
+        self.maker = maker
+        #: Dictionary of (member name, balance) pairs
         self.member_balances = member_balances
         
 
