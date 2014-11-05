@@ -49,21 +49,29 @@ since it makes data access independent from the underlying tables and views.
 Getters
 +++++++
 
-.. py:function:: get_user(name VARCHAR)
+.. py:function:: get_member(name VARCHAR)
 
     Returns details about a user
 
     :return:
-        * id INTEGER
         * name VARCHAR
         * password_hash VARCHAR
         * password_salt VARCHAR
         * active BOOLEAN
 
 
-.. C:function:: get_groups(member_name VARCHAR)
+.. C:function:: get_member_groups(member_name VARCHAR)
 
     Returns the groups a user belongs to.
+
+    :return:
+        * id INTEGER
+        * name VARCHAR
+       
+       
+.. C:function:: get_group(group_id INTEGER)
+
+    Returns the details of the group
 
     :return:
         * id INTEGER
@@ -153,7 +161,7 @@ Setters
     
 .. C:function:: insert_transfer(date_info DATE, amount NUMERIC, target_group_id INTEGER, from_member_name VARCHAR, to_member_name VARCHAR)
 
-    Adds a trasnfer in a group.
+    Adds a transfer in a group.
 
     :return: The ID of the newly inserted transfer.
     :rtype: INTEGER

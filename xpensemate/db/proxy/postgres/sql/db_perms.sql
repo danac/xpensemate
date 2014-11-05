@@ -24,7 +24,8 @@ REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM PUBLIC;
 REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION get_member(VARCHAR) TO xpensemate_function_invoker;
-GRANT EXECUTE ON FUNCTION get_groups(VARCHAR) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION get_member_groups(VARCHAR) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION get_group(INTEGER) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION get_group_members(INTEGER) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION get_group_expenses(INTEGER) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION get_group_transfers(INTEGER) TO xpensemate_function_invoker;

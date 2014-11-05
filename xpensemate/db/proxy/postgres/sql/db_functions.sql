@@ -35,8 +35,8 @@ CREATE OR REPLACE FUNCTION get_member(name VARCHAR)
     $BODY$
         SELECT
             name,
-            ENCODE(password_hash, 'base64'),
-            ENCODE(password_salt, 'base64'),
+            ENCODE(password_hash, 'hex'),
+            ENCODE(password_salt, 'hex'),
             active
         FROM table_member
         WHERE name = $1
@@ -47,18 +47,28 @@ CREATE OR REPLACE FUNCTION get_member(name VARCHAR)
 
 
 -- List the groups of a given member, based on a member name
-CREATE OR REPLACE FUNCTION get_groups(member_name VARCHAR)
+CREATE OR REPLACE FUNCTION get_member_groups(member_name VARCHAR)
     RETURNS SETOF table_group AS
     $BODY$
-        SELECT
-            table_group.id AS group_id,
-            table_group.name AS group_name
+        SELECT table_group.*
         FROM table_member_group
         INNER JOIN table_group
             ON table_group.id = table_member_group.group_id
         INNER JOIN table_member
             ON table_member_group.member_id = table_member.id
         WHERE table_member.name = $1
+    $BODY$
+    LANGUAGE 'sql'
+    SECURITY DEFINER;
+
+
+-- Return the name of a group
+CREATE OR REPLACE FUNCTION get_group(group_id INTEGER)
+    RETURNS SETOF table_group AS
+    $BODY$
+        SELECT *
+        FROM table_group
+        WHERE table_group.id = $1
     $BODY$
     LANGUAGE 'sql'
     SECURITY DEFINER;
@@ -281,7 +291,7 @@ CREATE OR REPLACE FUNCTION insert_member(member_name VARCHAR,
             member_id INTEGER;
         BEGIN
             INSERT INTO table_member (name, password_hash, password_salt)
-                VALUES ($1, DECODE($2, 'base64'), DECODE($3, 'base64'));
+                VALUES ($1, DECODE($2, 'hex'), DECODE($3, 'hex'));
             member_id := (SELECT currval(pg_get_serial_sequence('table_member', 'id')));
         END
     $BODY$
