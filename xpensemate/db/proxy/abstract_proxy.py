@@ -20,10 +20,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-
 import abc
+from xpensemate.utils.introspection import fix_abstract_class_coverage
 
 
+@fix_abstract_class_coverage
 class AbstractDatabaseProxy(metaclass=abc.ABCMeta):
     """
     This class describes the interface of a proxy to a datdabase engine.

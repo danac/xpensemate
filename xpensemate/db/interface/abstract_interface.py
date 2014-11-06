@@ -23,8 +23,10 @@
 import abc
 from xpensemate.config import DBConfig
 from xpensemate.data_types import MemberWithCredentials, Group, GroupWithExpenses, Expense, Transfer
+from xpensemate.utils.introspection import fix_abstract_class_coverage
 
 
+@fix_abstract_class_coverage
 class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
     """
     This abstract class describes the interface to the storage
@@ -161,3 +163,4 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
         :return: Nothing
         """
         pass
+

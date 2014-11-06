@@ -20,8 +20,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-
 from xpensemate.utils._partition_list_inline import partitions as p
+
 
 class PartitionList:
     """

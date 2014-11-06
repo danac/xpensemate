@@ -20,8 +20,21 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import xpensemate.utils.benchmark
-import xpensemate.utils.cache
-import xpensemate.utils.partitioning
-import xpensemate.utils.partition_list
-import xpensemate.utils.introspection
+import inspect
+
+
+def fix_abstract_class_coverage(cls):
+    """
+    Class decorators meant to be used on abstract interface definitions.
+    
+    It artificially runs the methods of an abstract interface definition
+    to prevent them from influencing test coverage reports.
+    """
+    
+    methods = inspect.getmembers(cls, predicate=inspect.isfunction)
+    for method in methods:
+        handle = method[1]
+        n_args = len(inspect.getargspec(handle).args)
+        handle(*[None]*n_args)
+    return cls
+    

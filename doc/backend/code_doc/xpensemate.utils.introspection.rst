@@ -1,17 +1,14 @@
 
-xpensemate
+xpensemate.utils.introspection
 =================================================
 
 .. toctree::
     :maxdepth: 10
 
-    xpensemate.config
-    xpensemate.data_types
-    xpensemate.db
-    xpensemate.utils
+    
 
 
-.. automodule:: xpensemate
+.. automodule:: xpensemate.utils.introspection
     :members:
     :undoc-members:
     :show-inheritance:
