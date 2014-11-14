@@ -1,0 +1,102 @@
+{% extends "base_layout.htm" %}
+
+{% block title %} Xpensemate > {{ group.name }} {% endblock %}
+
+{% block top_navigation %}
+<li> &raquo;&nbsp; <a href="/groups">Groups</a></li>
+<li> &raquo;&nbsp; {{ group.name }}</li>
+{% endblock %}
+
+{% block main_content %}
+<div class="section" id="xpensemate">
+    <h1>Group {{ group.name }}</h1>
+    
+    {% block notification %}
+    {% endblock %}
+    
+    <div class="section" id="project-documentation">
+        
+        <h2>Expenses</h2>
+        {% if group.expenses|length > 0 %}
+            <div class="wy-table-responsive">
+                <table class="docutils" border="1" style="width: 100%; table-layout: fixed; word-break: break-all; word-wrap: break-word; -moz-hyphens: auto;">
+                    <colgroup>
+                        <col width="15%">
+                        <col width="13%">
+                        <col width="40%">
+                        <col width="16%">
+                    </colgroup>
+                    <thead valign="bottom">
+                        <tr class="row-odd">
+                            <th class="head">Date</th>
+                            <th class="head">Amount</th>
+                            <th class="head">Description</th>
+                            <th class="head">Members</th>
+                        </tr>
+                    </thead>
+                    <tbody valign="top">
+                        {% for expense in group.expenses %}
+                            <tr class="row-odd">
+                                <td>{{ expense.date }}</td>
+                                <td>{{ (expense.amount*100)|round|int/100 }}</td>
+                                <td>{{ expense.description }}</td>
+                                <td>
+                                    {% for member in group.member_balance.keys()|sort %}
+                                        {% if member == expense.maker %}
+                                            <span style="color:#274FAE">&#10026;
+                                        {% elif member in expense.members %}
+                                            <span style="color:#27AE60">&#10004;
+                                        {% else %}
+                                            <span style="color:#B80000">&#10007;
+                                        {% endif %}
+                                            {{ member }}</span><br />
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No expenses yet.</p>
+        {% endif %}
+        
+        <h2>Transfers</h2>
+        {% if group.transfers|length > 0 %}
+            <div class="wy-table-responsive">
+                <table class="docutils" border="1" style="width: 100%; table-layout: fixed; word-break: break-all; word-wrap: break-word; -moz-hyphens: auto;">
+                    <colgroup>
+                        <col width="15%">
+                        <col width="13%">
+                        <col width="56%">
+                    </colgroup>
+                    <thead valign="bottom">
+                        <tr class="row-odd">
+                            <th class="head">Date</th>
+                            <th class="head">Amount</th>
+                            <th class="head">From/To</th>
+                        </tr>
+                    </thead>
+                    <tbody valign="top">
+                        {% for transfer in group.transfers %}
+                            <tr class="row-odd">
+                                <td>{{ transfer.date }}</td>
+                                <td>{{ (transfer.amount*100)|round|int/100 }}</td>
+                                <td>
+                                    {{ transfer.from_member}} <big>&#10148;</big> {{ transfer.to_member }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No transfers yet.</p>
+        {% endif %}
+        
+    </div>
+    
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base_layout.htm" %}
+
+{% block title %} Xpensemate > Groups {% endblock %}
+
+{% block top_navigation %}
+<li> &raquo;&nbsp; Groups</li>
+{% endblock %}
+
+{% block main_content %}
+<div class="section" id="xpensemate">
+    <h1>Welcome, {{ member_name }} !</h1>
+    
+    {% block notification %}
+    {% endblock %}
+    
+    <div class="section" id="project-documentation">
+        <h2>Here are your groups:<a class="headerlink" href="#project-documentation" title="Permalink to this headline">¶</a></h2>
+        
+        {% for group in groups %}
+        <dl class="class">
+            <a href="/groups/{{ group.group_id }}">
+            <dt style="margin-bottom:15px">
+                <big>{{ group.name.upper() }}</big>
+            </dt>
+            </a>
+            <dd>
+                
+                {% for member in group.member_balance.keys() %}
+                <dl class="attribute" style="margin-bottom:10px">
+                    <dt>
+                        <tt class="descname">{{ member }}</tt>
+                        (balance:
+                            <span class="viewcode-link" style="padding-left:5px{% if (group.member_balance[member]*100)|round|int == 0  %};color:#000000{% elif group.member_balance[member] < 0 %};color:#B80000{%endif %}">
+                                {{ (group.member_balance[member]*100)|round|int/100 }}
+                            </span>)
+                    </dt>
+                </dl>
+                {% endfor %}
+            </dd>
+        </dl>
+        {% endfor %}
+    </div>
+    
+</div>
+
+{% endblock %}
