@@ -26,7 +26,8 @@ from xpensemate.config import DBConfig
 class DatabaseInterfaceFactory:
     """
     Factory class used to automatically instantiate a database factory
-    based on the type of interface defined in :class:`xpensemate.config.DBConfig`.
+    based on the type of interface defined in
+    :class:`xpensemate.config.DBConfig.interface`.
     """
     
     #: Singleton instance of the database interface

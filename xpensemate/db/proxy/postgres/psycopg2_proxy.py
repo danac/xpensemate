@@ -25,11 +25,11 @@ from xpensemate.db.proxy.abstract_proxy import AbstractDatabaseProxy
 
 
 # Convert psycopg2's default Decimal type to regular Python floats
-DEC2FLOAT = psycopg2.extensions.new_type(
-    psycopg2.extensions.DECIMAL.values,
-    'DEC2FLOAT',
-    lambda value, curs: float(value) if value is not None else None)
-psycopg2.extensions.register_type(DEC2FLOAT)
+#DEC2FLOAT = psycopg2.extensions.new_type(
+    #psycopg2.extensions.DECIMAL.values,
+    #'DEC2FLOAT',
+    #lambda value, curs: float(value) if value is not None else None)
+#psycopg2.extensions.register_type(DEC2FLOAT)
 
 
 class SingleConnectionProxy(AbstractDatabaseProxy):

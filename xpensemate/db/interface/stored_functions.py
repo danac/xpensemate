@@ -24,6 +24,7 @@ from xpensemate.data_types import MemberWithCredentials, Group, GroupWithExpense
 from xpensemate.db.interface.abstract_interface import AbstractDatabaseInterface
 from xpensemate.db.proxy.factory import DatabaseProxyFactory
 from xpensemate.config import DBConfig
+from xpensemate.utils.benchmark import timeit
 
 
 class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
@@ -40,7 +41,7 @@ class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
         if self.db_proxy is None:
             self.db_proxy = DatabaseProxyFactory.get_proxy()
 
-        
+    @timeit
     def get_member_credentials(self, member_name):
         rows = []
         for i in self._execute_stored_procedure("get_member", member_name):
@@ -55,12 +56,12 @@ class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
         
         return result
         
-        
+    @timeit
     def get_member_groups(self, member_name):
         results = self._execute_stored_procedure("get_member_groups", member_name)
         return [self._instantiate_group(*group) for group in results]
     
-
+    @timeit
     def get_group_with_movements(self, group_id):
         group = self._instantiate_group(group_id)
         
@@ -68,8 +69,8 @@ class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
         for row in self._execute_stored_procedure("get_group_expenses", group_id):
             typed_expense = Expense(
                 expense_id = row[0],
-                description = row[1],
-                date = row[2],
+                date = row[1],
+                description = row[2],
                 amount = row[3],
                 maker = row[4],
                 members = row[5].split(DBConfig.string_concat_delimiter))

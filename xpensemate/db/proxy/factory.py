@@ -27,7 +27,8 @@ from xpensemate.config import DBConfig
 class DatabaseProxyFactory:
     """
     Factory class used to automatically instantiate a singleton proxy
-    to the database backend defined in :class:`xpensemate.config.DBConfig`.
+    to the database backend defined in
+    :class:`xpensemate.config.DBConfig.engine`.
     """
     
     #: Singleton instance of the database proxy
