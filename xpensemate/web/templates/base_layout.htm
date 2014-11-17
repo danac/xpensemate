@@ -28,7 +28,9 @@
             <div class="wy-side-nav-search">
                 
                 <a href="/" class="fa fa-home"> XpenseMate</a>
-                    
+                <div role="search">
+                    {% block sidebar_top %}{% endblock %}
+                </div>
 <!--
                 <div role="search">
                     <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -41,6 +43,7 @@
             </div>
 
             <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                {% block sidebar %}{% endblock %}
 <!--
                 <ul>
                 <li class="toctree-l1"><a class="reference internal" href="content1.html">Section 1</a><ul>
@@ -125,6 +128,7 @@
           SphinxRtdTheme.StickyNav.enable();
       });
     </script>
+    
 
 </body>
 </html>

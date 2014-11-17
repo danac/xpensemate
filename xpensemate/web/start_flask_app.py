@@ -23,25 +23,30 @@
 import os.path
 import flask
 from xpensemate.db.interface.factory import DatabaseInterfaceFactory
-from xpensemate.utils.benchmark import timeit
 
 app = flask.Flask(__name__)
 
 ROOT_PATH = os.path.dirname(__file__)
-#bottle.TEMPLATE_PATH.insert(0, os.path.join(ROOT_PATH, 'views'))
 
 db_interface = DatabaseInterfaceFactory.get_interface()    
+
+# set the secret key.  keep this really secret:
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 @app.route("/")
 @app.route("/groups")
 @app.route("/groups/")
 def groups():
-    member_name = "Dana"
+    if 'username' not in flask.session:
+        return flask.redirect(flask.url_for('login'))
+    member_name = flask.session['username']
     groups = db_interface.get_member_groups(member_name)
     return flask.render_template("groups.htm", groups=groups, member_name=member_name)
     
 @app.route("/groups/<group_id>")
 def group(group_id):
+    if 'username' not in flask.session:
+        return flask.redirect(flask.url_for('login'))
     group = db_interface.get_group_with_movements(group_id)
     return flask.render_template("group_expense.htm", group=group)
 
@@ -49,8 +54,18 @@ def group(group_id):
 def serve_static(filename):
     return app.send_from_directory(os.path.join(ROOT_PATH, 'static'), filename)    
 
-#@bottle.get("/static/<filepath:path>")
-#def server_static(filepath):
-    #return bottle.static_file(filepath, root=os.path.join(ROOT_PATH, 'static'))
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if flask.request.method == 'POST':
+        flask.session['username'] = flask.request.form['username']
+        return flask.redirect('/')
+    return flask.render_template("login.htm")
+
+@app.route('/logout')
+def logout():
+    # remove the username from the session if it's there
+    flask.session.pop('username', None)
+    return flask.redirect(flask.url_for('groups'))
+
 
 app.run(debug=True, port=8080)

@@ -6,6 +6,13 @@
 <li> &raquo;&nbsp; Groups</li>
 {% endblock %}
 
+{% block sidebar %}
+<ul>
+    <li class="toctree-l1"><a class="reference internal" href="/logout">Logout</a>
+    </li>
+</ul>
+{% endblock %}
+
 {% block main_content %}
 <div class="section" id="xpensemate">
     <h1>Welcome, {{ member_name }} !</h1>
@@ -16,29 +23,33 @@
     <div class="section" id="project-documentation">
         <h2>Here are your groups:<a class="headerlink" href="#project-documentation" title="Permalink to this headline">¶</a></h2>
         
-        {% for group in groups %}
-        <dl class="class">
-            <a href="/groups/{{ group.group_id }}">
-            <dt style="margin-bottom:15px">
-                <big>{{ group.name.upper() }}</big>
-            </dt>
-            </a>
-            <dd>
-                
-                {% for member in group.member_balance.keys() %}
-                <dl class="attribute" style="margin-bottom:10px">
-                    <dt>
-                        <tt class="descname">{{ member }}</tt>
-                        (balance:
-                            <span class="viewcode-link" style="padding-left:5px{% if (group.member_balance[member]*100)|round|int == 0  %};color:#000000{% elif group.member_balance[member] < 0 %};color:#B80000{%endif %}">
-                                {{ (group.member_balance[member]*100)|round|int/100 }}
-                            </span>)
-                    </dt>
-                </dl>
-                {% endfor %}
-            </dd>
-        </dl>
-        {% endfor %}
+        {% if groups|length > 0 %}
+            {% for group in groups %}
+            <dl class="class">
+                <a href="/groups/{{ group.group_id }}">
+                <dt style="margin-bottom:15px">
+                    <big>{{ group.name.upper() }}</big>
+                </dt>
+                </a>
+                <dd>
+                    
+                    {% for member in group.member_balance.keys() %}
+                    <dl class="attribute" style="margin-bottom:10px">
+                        <dt>
+                            <tt class="descname">{{ member }}</tt>
+                            (balance:
+                                <span class="viewcode-link" style="padding-left:5px{% if (group.member_balance[member]*100)|round|int == 0  %};color:#000000{% elif group.member_balance[member] < 0 %};color:#B80000{%endif %}">
+                                    {{ (group.member_balance[member]*100)|round|int/100 }}
+                                </span>)
+                        </dt>
+                    </dl>
+                    {% endfor %}
+                </dd>
+            </dl>
+            {% endfor %}
+        {% else %}
+            No groups yet.
+        {% endif %}
     </div>
     
 </div>
