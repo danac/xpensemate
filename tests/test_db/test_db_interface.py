@@ -46,10 +46,8 @@ class TestInsertQueryPsycopg2:
     def tearDown(self):
         pass
         
-    def make_member(self, name, password, salt):
-        hashing_func = DBConfig.password_hashing_function
-        pass_hash = hashing_func(salt+password)
-        member = dt.MemberWithCredentials(name=name, password_hash=pass_hash, password_salt=salt, active=True)
+    def make_member(self, name, password):
+        member = dt.MemberWithCredentials(name=name, password=password, active=True)
         return member
         
     @nt.raises(Exception)
@@ -58,12 +56,12 @@ class TestInsertQueryPsycopg2:
         
     @nt.raises(Exception)
     def test_insert_duplicate_member(self):
-        member = self.make_member("Duplicate member", "pass", "ff")
+        member = self.make_member("Duplicate member", "pass")
         self.db_interface.insert_member(member)
         self.db_interface.insert_member(member)
     
     def test_insert_member(self):
-        member = self.make_member("New member", "pass", "ff")
+        member = self.make_member("New member", "pass")
         self.db_interface.insert_member(member)
         member2 = self.db_interface.get_member_credentials(member.name)
         nt.assert_equal(member.__class__, member2.__class__, "Bad type returned")
