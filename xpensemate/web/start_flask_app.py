@@ -47,8 +47,10 @@ def groups():
 def group(group_id):
     if 'username' not in flask.session:
         return flask.redirect(flask.url_for('login'))
+    member_name = flask.session['username']
     group = db_interface.get_group_with_movements(group_id)
-    return flask.render_template("group_expense.htm", group=group)
+    groups = db_interface.get_member_groups(member_name)
+    return flask.render_template("group_expense.htm", group=group, groups=groups)
 
 @app.route('/static/<path:filename>')
 def serve_static(filename):
@@ -56,10 +58,19 @@ def serve_static(filename):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if flask.request.method == 'POST':
-        flask.session['username'] = flask.request.form['username']
+    if 'username' in flask.session:
         return flask.redirect('/')
-    return flask.render_template("login.htm")
+    elif flask.request.method == 'POST':
+        username = flask.request.form['username']
+        try:
+            user = db_interface.get_member_credentials(username)
+        except AssertionError:
+            flask.flash("Bad credential")
+            return flask.redirect('/login')
+        flask.session['username'] = username
+        return flask.redirect('/')
+    else:
+        return flask.render_template("login.htm")
 
 @app.route('/logout')
 def logout():

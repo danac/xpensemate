@@ -8,6 +8,14 @@
 
 {% block sidebar %}
 <ul>
+    <li class="toctree-l1 current"><a class="reference internal" href="#">My groups</a>
+        {% if groups|length > 0 %}
+            <ul>
+            {% for group in groups %}
+                <li class="toctree-l2"><a class="reference internal" href="/groups/{{ group.group_id }}">{{ group.name }}</a></li>
+            {% endfor %}
+            </ul>
+        {% endif %}
     <li class="toctree-l1"><a class="reference internal" href="/logout">Logout</a>
     </li>
 </ul>
@@ -17,11 +25,8 @@
 <div class="section" id="xpensemate">
     <h1>Welcome, {{ member_name }} !</h1>
     
-    {% block notification %}
-    {% endblock %}
-    
     <div class="section" id="project-documentation">
-        <h2>Here are your groups:<a class="headerlink" href="#project-documentation" title="Permalink to this headline">¶</a></h2>
+        <h2>Here are your groups:</h2>
         
         {% if groups|length > 0 %}
             {% for group in groups %}

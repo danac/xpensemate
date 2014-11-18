@@ -7,6 +7,23 @@
 <li> &raquo;&nbsp; {{ group.name }}</li>
 {% endblock %}
 
+{% block sidebar %}
+<ul>
+    <li class="toctree-l1 current"><a class="reference internal" href="/groups">My groups</a>
+        <ul>
+        {% for other_group in groups %}
+            {% if other_group.name != group.name %}
+            <li class="toctree-l2"><a class="reference internal" href="/groups/{{ other_group.group_id }}">{{ other_group.name }}</a></li>
+            {% else %}
+            <li class="toctree-l2 current"><a class="reference internal" href="/groups/{{ other_group.group_id }}">{{ other_group.name }}</a></li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+    <li class="toctree-l1"><a class="reference internal" href="/logout">Logout</a>
+    </li>
+</ul>
+{% endblock %}
+
 {% block main_content %}
 <div class="section" id="xpensemate">
     <h1>Group {{ group.name }}</h1>
