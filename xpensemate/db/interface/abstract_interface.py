@@ -23,10 +23,8 @@
 import abc
 from xpensemate.config import DBConfig
 from xpensemate.data_types import MemberWithCredentials, Group, GroupWithExpenses, Expense, Transfer
-from xpensemate.utils.introspection import fix_abstract_class_coverage
 
 
-@fix_abstract_class_coverage
 class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
     """
     This abstract class describes the interface to the storage
@@ -34,7 +32,7 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
     """
     
     @abc.abstractmethod
-    def get_member_credentials(self, member_name):
+    def get_member_credentials(self, member_name): # pragma: no cover
         """
         Returns the details of a user.
      
@@ -46,7 +44,7 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
     
     
     @abc.abstractmethod
-    def get_member_groups(self, member_name):
+    def get_member_groups(self, member_name): # pragma: no cover
         """
         Returns the groups a user belongs to.
      
@@ -58,7 +56,7 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
     
     
     @abc.abstractmethod
-    def get_group_with_movements(self, group_id):
+    def get_group_with_movements(self, group_id): # pragma: no cover
         """
         Returns the expenses of a group.
      
@@ -70,7 +68,7 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
         
         
     @abc.abstractmethod
-    def insert_member(self, member):
+    def insert_member(self, member): # pragma: no cover
         """
         Inserts a new member.
      
@@ -82,7 +80,7 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
         
         
     @abc.abstractmethod
-    def insert_group(self, group):
+    def insert_group(self, group): # pragma: no cover
         """
         Inserts a new member.
      
@@ -106,7 +104,7 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
         
         
     @abc.abstractmethod
-    def insert_group_member(self, member_name, group_id):
+    def insert_group_member(self, member_name, group_id): # pragma: no cover
         """
         Adds a member to an existing group.
      
@@ -118,7 +116,7 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
         
         
     @abc.abstractmethod
-    def insert_expense(self, expense, group_id):
+    def insert_expense(self, expense, group_id): # pragma: no cover
         """
         Adds a member to an existing group.
      
@@ -131,7 +129,7 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
         
         
     @abc.abstractmethod
-    def insert_transfer(self, transfer, group_id):
+    def insert_transfer(self, transfer, group_id): # pragma: no cover
         """
         Adds a member to an existing group.
      
@@ -144,7 +142,7 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
         
         
     @abc.abstractmethod
-    def delete_expense(self, expense_id):
+    def delete_expense(self, expense_id): # pragma: no cover
         """
         Deletes an expense
      
@@ -155,7 +153,7 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
         
         
     @abc.abstractmethod
-    def delete_transfer(self, transfer_id):
+    def delete_transfer(self, transfer_id): # pragma: no cover
         """
         Deletes an expense
      

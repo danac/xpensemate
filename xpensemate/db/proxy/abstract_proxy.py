@@ -21,17 +21,15 @@
 #
 
 import abc
-from xpensemate.utils.introspection import fix_abstract_class_coverage
 
 
-@fix_abstract_class_coverage
 class AbstractDatabaseProxy(metaclass=abc.ABCMeta):
     """
     This class describes the interface of a proxy to a datdabase engine.
     """
     
     @abc.abstractmethod
-    def query(query_string):
+    def query(query_string): # pragma: no cover
         """
         Method used to execute queries on the database.
         
