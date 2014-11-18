@@ -58,8 +58,3 @@ class DBConfig:
     #: The character used as delimiter in concatenated strings returned from the database
     string_concat_delimiter = '|'
     
-    #: The hashing algorithm used for the user's passwords
-    password_hashing_function = lambda x: hashlib.sha512(x.encode("utf-8")).hexdigest()
-    
-    
-    
