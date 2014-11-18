@@ -1,15 +1,15 @@
 import time
 import functools
+from decimal import Decimal
 
 from xpensemate.utils.partitioning import apply_partitions
 from xpensemate.utils import benchmark
 
-TOL = 1e-10
+TOL = 1e-6
 
 
 #@benchmark.timeit
 def partition_balances(l):
-    #print(len(list(neclusters3(l,3))))
     """
     This finds partitions of a given list of balances where the total balance
     of each element of the partition is null (NP-complete)
@@ -24,7 +24,9 @@ def partition_balances(l):
                 parts = map(tuple, i)
                 return tuple(parts)
     except NotImplementedError:
+        print("Not implemented, skipping partitioning!")
         return l,
+    return l,
 
 
 class MemberBalance:
@@ -112,18 +114,19 @@ def is_sum_null(l):
   
 
 #@benchmark.timeit
-def calculate_debts(l, enable_partitioning=True):
+def calculate_debts(d, enable_partitioning=True):
     typed_l = []
-    for i in l:
-        typed_l.append(MemberBalance(str(i), i))
+    for k in d:
+        typed_l.append(MemberBalance(k, d[k]))
     typed_l = tuple(typed_l)
-    #print("Set cardinality {}".format(len(typed_l)))
+    assert is_sum_null(typed_l)
+    print("Set cardinality {}".format(len(typed_l)))
     
     if enable_partitioning:
         parts = partition_balances(typed_l)
     else:
         parts = (typed_l,)
-    #print("Using a {}-partition".format(len(parts)))
+    print("Using a {}-partition".format(len(parts)))
     
     transfers = {}
     for part in parts:
@@ -131,17 +134,20 @@ def calculate_debts(l, enable_partitioning=True):
         new_transfers = bipartite_matching(part)
         transfers = dict(merge_dicts(transfers, new_transfers))
         
-    #num_transfers = 0
-    #for key, val in transfers.items():
-        #num_transfers += len(val)
-    #print("Total number of bipartite matches {}".format(num_transfers))
+    num_transfers = 0
+    for key, val in transfers.items():
+        num_transfers += len(val)
+    print("Total number of bipartite matches {}".format(num_transfers))
     
     return transfers
 
 
 if __name__ == "__main__":
-    l = (5, 3.3, -5, -4, 9, -9.2, 11, -6.8, -3.3)#, -5, -4, -1)
-    print("Testing with list:", l)
-    assert is_sum_null(l)
-    result = calculate_debts(l)
+    
+    #l = (5, 3.3, -5, -4, 9, -9.2, 11, -6.8, -3.3)#, -5, -4, -1)
+    #print("Testing with list:", l)
+    #assert is_sum_null(l)
+    #d = {str(k):k for k in l}
+    d={'Dana': Decimal('3.3336666666666667'), 'Andy': Decimal('-0.0003333333333333'), 'Victoria': Decimal('-3.3333333333333333')}
+    result = calculate_debts(d)
     print(result)
