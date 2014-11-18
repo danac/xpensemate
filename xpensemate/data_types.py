@@ -27,6 +27,8 @@ This modules implements some simple containers to store results from the databas
     match the attribute names**.
 """
 
+from xpensemate.utils.all_partitions import calculate_debts
+
 class Member:
     def __init__(self, name):
         #: Member name
@@ -52,6 +54,28 @@ class Group:
         self.owner = owner
         #: Dictionary of (member name, balance) pairs
         self.member_balance = member_balance
+        
+    @property
+    def debts(self):
+        """
+        Calculate the debts, based on the member balances
+        
+        :return: A dictionary of dictionary
+        
+        .. code-block:: python
+        
+            {
+                'Member X':
+                {
+                    'Member Y': 4,
+                    'Member Z': 6.8,
+                    ...
+                },
+                ...
+            }
+        
+        """
+        return calculate_debts(self.member_balance)
         
 
 class Expense:

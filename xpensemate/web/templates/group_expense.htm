@@ -33,6 +33,31 @@
     
     <div class="section" id="project-documentation">
         
+        <h2>Debts</h2>
+        {% if group.expenses|length > 0 or group.transfers|length > 0 %}
+            <div class="wy-table-responsive">
+                <table class="docutils" border="1" style="width: 100%; table-layout: fixed; word-break: break-all; word-wrap: break-word; -moz-hyphens: auto;">
+                    <tbody valign="top">
+                        {% for member in group.debts.keys() %}
+                            <tr>
+                                <td>{{ member }} owes...</td>
+                                <td>
+                                        {% for other_member in group.debts[member].keys() %}
+                                            {% if ((group.debts[member][other_member]|float/0.05)|round*0.05)|abs > 0 %}
+                                            {{ other_member }} : {{ "%0.2f"|format((group.debts[member][other_member]|float/0.05)|round*0.05) }}
+                                            {% endif %}
+                                        {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        
+        
+        
+        {% endif %}
+        
         <h2>Expenses</h2>
         {% if group.expenses|length > 0 %}
             <div class="wy-table-responsive">
@@ -45,17 +70,17 @@
                     </colgroup>
                     <thead valign="bottom">
                         <tr class="row-odd">
-                            <th class="head">Date</th>
-                            <th class="head">Amount</th>
-                            <th class="head">Description</th>
-                            <th class="head">Members</th>
+                            <th class="head" style="border-right:1px solid #E1E4E5">Date</th>
+                            <th class="head" style="border-right:1px solid #E1E4E5">Amount</th>
+                            <th class="head" style="border-right:1px solid #E1E4E5">Description</th>
+                            <th class="head" style="border-right:1px solid #E1E4E5">Members</th>
                         </tr>
                     </thead>
                     <tbody valign="top">
                         {% for expense in group.expenses %}
                             <tr class="row-odd">
                                 <td>{{ expense.date }}</td>
-                                <td>{{ (expense.amount*100)|round|int/100 }}</td>
+                                <td>{{ "%0.2f"|format((expense.amount|float/0.05)|round*0.05) }}</td>
                                 <td>{{ expense.description }}</td>
                                 <td>
                                     {% for member in group.member_balance.keys()|sort %}
@@ -89,9 +114,9 @@
                     </colgroup>
                     <thead valign="bottom">
                         <tr class="row-odd">
-                            <th class="head">Date</th>
-                            <th class="head">Amount</th>
-                            <th class="head">From/To</th>
+                            <th class="head" style="border-right:1px solid #E1E4E5">Date</th>
+                            <th class="head" style="border-right:1px solid #E1E4E5">Amount</th>
+                            <th class="head" style="border-right:1px solid #E1E4E5">From/To</th>
                         </tr>
                     </thead>
                     <tbody valign="top">
