@@ -34,12 +34,10 @@ class Member:
 
 
 class MemberWithCredentials(Member):
-    def __init__(self, password_hash, password_salt, active, **kwargs):
+    def __init__(self, password, active, **kwargs):
         super().__init__(**kwargs)
-        #: Hashed member password
-        self.password_hash = password_hash
-        #: Salt used for the password hash
-        self.password_salt = password_salt
+        #: Member password information
+        self.password = password
         #: Flag indicating whether the user account is active
         self.active = active
 

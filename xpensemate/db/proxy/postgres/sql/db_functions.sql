@@ -27,16 +27,14 @@
 DROP TYPE IF EXISTS member_credential_t CASCADE;
 CREATE TYPE member_credential_t AS (
     name VARCHAR,
-    password_hash VARCHAR,
-    password_salt VARCHAR,
+    password VARCHAR,
     active BOOLEAN);
 CREATE OR REPLACE FUNCTION get_member(name VARCHAR)
     RETURNS SETOF member_credential_t AS
     $BODY$
         SELECT
             name,
-            ENCODE(password_hash, 'hex'),
-            ENCODE(password_salt, 'hex'),
+            password,
             active
         FROM table_member
         WHERE name = $1
@@ -283,15 +281,14 @@ CREATE OR REPLACE FUNCTION get_group_members(group_id INTEGER)
 
 -- Create a new group
 CREATE OR REPLACE FUNCTION insert_member(member_name VARCHAR,
-                                         member_password_hash VARCHAR,
-                                         member_password_salt VARCHAR)
+                                         password VARCHAR)
     RETURNS VOID AS
     $BODY$
         DECLARE
             member_id INTEGER;
         BEGIN
-            INSERT INTO table_member (name, password_hash, password_salt)
-                VALUES ($1, DECODE($2, 'hex'), DECODE($3, 'hex'));
+            INSERT INTO table_member (name, password)
+                VALUES ($1, password);
             member_id := (SELECT currval(pg_get_serial_sequence('table_member', 'id')));
         END
     $BODY$

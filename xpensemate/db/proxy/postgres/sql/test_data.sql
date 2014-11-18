@@ -55,11 +55,11 @@ SELECT pg_catalog.setval('table_expense_id_seq', 3, true);
 -- Data for Name: table_member; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY table_member (id, name, password_hash, password_salt, active) FROM stdin;
-1	Dana	\\x09fb9ff32c5aa81bf3cd060e82f8bdfe6fa40b933c00a3b83094a4a6a9c1db24	\\x09fb9ff32c5aa81bf3cd060e82f8bdfe6fa40b933c00a3b83094a4a6a9c1db24	t
-2	Andy	\\x09fb9ff32c5aa81bf3cd060e82f8bdfe6fa40b933c00a3b83094a4a6a9c1db24	\\x09fb9ff32c5aa81bf3cd060e82f8bdfe6fa40b933c00a3b83094a4a6a9c1db24	t
-3	Victoria	\\x09fb9ff32c5aa81bf3cd060e82f8bdfe6fa40b933c00a3b83094a4a6a9c1db24	\\x09fb9ff32c5aa81bf3cd060e82f8bdfe6fa40b933c00a3b83094a4a6a9c1db24	t
-4	Jack	\\x09fb9ff32c5aa81bf3cd060e82f8bdfe6fa40b933c00a3b83094a4a6a9c1db24	\\x09fb9ff32c5aa81bf3cd060e82f8bdfe6fa40b933c00a3b83094a4a6a9c1db24	t
+COPY table_member (id, name, password, active) FROM stdin;
+1	Dana	blabla	t
+2	Andy	blabla	t
+3	Victoria	blabla	t
+4	Jack	blabla	t
 \.
 
 

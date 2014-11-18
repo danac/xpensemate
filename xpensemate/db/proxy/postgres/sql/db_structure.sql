@@ -29,9 +29,7 @@ CREATE TABLE table_member (
     name VARCHAR(15)
         NOT NULL
         UNIQUE,
-    password_hash BYTEA
-        NOT NULL,
-    password_salt BYTEA
+    password TEXT
         NOT NULL,
     active BOOLEAN
         NOT NULL

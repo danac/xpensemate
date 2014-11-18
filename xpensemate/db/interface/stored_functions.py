@@ -50,9 +50,8 @@ class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
         s=rows[0]
         result = MemberWithCredentials(
             name = s[0],
-            password_hash = s[1],
-            password_salt = s[2],
-            active = s[3])
+            password = s[1],
+            active = s[2])
         
         return result
         
@@ -96,7 +95,7 @@ class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
         
         
     def insert_member(self, member):
-        arguments = member.name, member.password_hash, member.password_salt
+        arguments = member.name, member.password
         self._execute_stored_procedure("insert_member", *arguments)
         
         
