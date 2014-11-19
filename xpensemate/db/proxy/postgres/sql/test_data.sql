@@ -22,8 +22,8 @@ SET search_path = public, pg_catalog;
 -- Data for Name: table_group; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY table_group (id, name) FROM stdin;
-1	Cosa nostra
+COPY table_group (id, name, smallest_unit) FROM stdin;
+1	Cosa nostra	0.05
 \.
 
 
