@@ -1,18 +1,14 @@
 
-xpensemate
+xpensemate.web.start_flask_app
 =================================================
 
 .. toctree::
     :maxdepth: 10
 
-    xpensemate.config
-    xpensemate.data_types
-    xpensemate.db
-    xpensemate.utils
-    xpensemate.web
+    
 
 
-.. automodule:: xpensemate
+.. automodule:: xpensemate.web.start_flask_app
     :members:
     :undoc-members:
     :show-inheritance:

@@ -10,7 +10,7 @@ xpensemate.utils
     xpensemate.utils.partition_list
     xpensemate.utils.cache
     xpensemate.utils.benchmark
-    xpensemate.utils.introspection
+    xpensemate.utils.numeric
 
 
 .. automodule:: xpensemate.utils
