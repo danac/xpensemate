@@ -170,70 +170,76 @@ CREATE OR REPLACE FUNCTION get_member_balance(member_name VARCHAR, group_id INTE
     RETURNS NUMERIC AS
     $BODY$
         -- Difference of the amounts to pay and already paid
-        SELECT COALESCE(share_to_pay_agg.amount, 0.0)
-               - COALESCE(expenses_made_agg.amount, 0.0)
-               - COALESCE(transfers_made_agg.amount, 0.0)
-               + COALESCE(transfers_received_agg.amount, 0.0)
+        SELECT ROUND(
+                    (COALESCE(share_to_pay_agg.amount, 0.0)
+                    - COALESCE(expenses_made_agg.amount, 0.0)
+                    - COALESCE(transfers_made_agg.amount, 0.0)
+                    + COALESCE(transfers_received_agg.amount, 0.0))
+                    / table_group.smallest_unit)
+                * table_group.smallest_unit
                AS balance
-        FROM (
-            -- Aggregation of the total amount of the selected expenses
-            -- weighted by the number of members involved in each expense
-            SELECT SUM(table_expense.amount / num_members_agg.num_members) AS amount
-            FROM (
-                -- Count of the number of members in the expenses
-                SELECT 
-                    table_expense_member.expense_id,
-                    COUNT(table_expense_member.member_id) AS num_members
-                FROM table_expense_member
-                WHERE table_expense_member.expense_id IN (
-                    -- Expense IDs matching the member and the group
-                    SELECT table_expense.id AS expense_id
-                    FROM table_expense
-                    INNER JOIN table_expense_member
-                        ON table_expense_member.expense_id = table_expense.id
-                    INNER JOIN table_member
-                        ON table_expense_member.member_id = table_member.id
-                    WHERE table_expense.group_id = $2
-                        AND table_member.name = $1
-                )
-                GROUP BY table_expense_member.expense_id
-            ) AS num_members_agg
-            -- Link to the expense table based on the expenses for which
-            -- the number of members was aggregated
-            INNER JOIN table_expense
-                ON num_members_agg.expense_id = table_expense.id
-        ) AS expenses_made_agg,
-        (
-            -- Expenses matching the member and the group, for which the member actually
-            -- made the expense, and aggregation of the total amount
-            SELECT SUM(table_expense.amount) AS amount
-            FROM table_expense
-            INNER JOIN table_expense_member
-                ON table_expense_member.expense_id = table_expense.id
-            INNER JOIN table_member
-                ON table_expense_member.member_id = table_member.id
-            WHERE table_expense.group_id = $2
-                AND table_member.name = $1
-                AND table_expense_member.made_expense IS TRUE
-        ) AS share_to_pay_agg,
-        (
-            -- Transfers matching the member and the group, for which the member received money,
-            SELECT SUM(table_transfer.amount) AS amount
-            FROM table_transfer
-            INNER JOIN table_member
-                ON table_transfer.to_member_id = table_member.id
-            WHERE table_transfer.group_id = $2
-                AND table_member.name = $1
-        ) AS transfers_received_agg,
-        (
-            -- Transfers matching the member and the group, for which the member paid money,
-            SELECT SUM(table_transfer.amount) AS amount
-            FROM table_transfer
-            INNER JOIN table_member
-                ON table_transfer.from_member_id = table_member.id
-            WHERE table_transfer.group_id = $2
-                AND table_member.name = $1
-        ) AS transfers_made_agg
+        FROM
+            table_group,
+            (
+                -- Aggregation of the total amount of the selected expenses
+                -- weighted by the number of members involved in each expense
+                SELECT SUM(table_expense.amount / num_members_agg.num_members) AS amount
+                FROM (
+                    -- Count of the number of members in the expenses
+                    SELECT 
+                        table_expense_member.expense_id,
+                        COUNT(table_expense_member.member_id) AS num_members
+                    FROM table_expense_member
+                    WHERE table_expense_member.expense_id IN (
+                        -- Expense IDs matching the member and the group
+                        SELECT table_expense.id AS expense_id
+                        FROM table_expense
+                        INNER JOIN table_expense_member
+                            ON table_expense_member.expense_id = table_expense.id
+                        INNER JOIN table_member
+                            ON table_expense_member.member_id = table_member.id
+                        WHERE table_expense.group_id = $2
+                            AND table_member.name = $1
+                    )
+                    GROUP BY table_expense_member.expense_id
+                ) AS num_members_agg
+                -- Link to the expense table based on the expenses for which
+                -- the number of members was aggregated
+                INNER JOIN table_expense
+                    ON num_members_agg.expense_id = table_expense.id
+            ) AS expenses_made_agg,
+            (
+                -- Expenses matching the member and the group, for which the member actually
+                -- made the expense, and aggregation of the total amount
+                SELECT SUM(table_expense.amount) AS amount
+                FROM table_expense
+                INNER JOIN table_expense_member
+                    ON table_expense_member.expense_id = table_expense.id
+                INNER JOIN table_member
+                    ON table_expense_member.member_id = table_member.id
+                WHERE table_expense.group_id = $2
+                    AND table_member.name = $1
+                    AND table_expense_member.made_expense IS TRUE
+            ) AS share_to_pay_agg,
+            (
+                -- Transfers matching the member and the group, for which the member received money,
+                SELECT SUM(table_transfer.amount) AS amount
+                FROM table_transfer
+                INNER JOIN table_member
+                    ON table_transfer.to_member_id = table_member.id
+                WHERE table_transfer.group_id = $2
+                    AND table_member.name = $1
+            ) AS transfers_received_agg,
+            (
+                -- Transfers matching the member and the group, for which the member paid money,
+                SELECT SUM(table_transfer.amount) AS amount
+                FROM table_transfer
+                INNER JOIN table_member
+                    ON table_transfer.from_member_id = table_member.id
+                WHERE table_transfer.group_id = $2
+                    AND table_member.name = $1
+            ) AS transfers_made_agg
+        WHERE table_group.id = $2
     $BODY$
     LANGUAGE 'sql'
     SECURITY DEFINER;
@@ -298,6 +304,7 @@ CREATE OR REPLACE FUNCTION insert_member(member_name VARCHAR,
     
 -- Create a new group
 CREATE OR REPLACE FUNCTION insert_group(name VARCHAR,
+                                        smallest_unit NUMERIC,
                                         owner_name VARCHAR,
                                         other_members VARIADIC VARCHAR[])
     RETURNS INTEGER AS
@@ -307,13 +314,13 @@ CREATE OR REPLACE FUNCTION insert_group(name VARCHAR,
             other_member_name VARCHAR;
             new_member_id INTEGER;
         BEGIN
-            INSERT INTO table_group (name)
-                VALUES ($1);
+            INSERT INTO table_group (name, smallest_unit)
+                VALUES ($1, $2);
             group_id := (SELECT currval(pg_get_serial_sequence('table_group', 'id')));
-            new_member_id := (SELECT table_member.id FROM table_member WHERE table_member.name = $2);
+            new_member_id := (SELECT table_member.id FROM table_member WHERE table_member.name = $3);
             INSERT INTO table_member_group (member_id, group_id, is_owner)
                 VALUES (new_member_id, group_id, TRUE);
-            FOR other_member_name IN (SELECT i FROM UNNEST($3) AS i )
+            FOR other_member_name IN (SELECT i FROM UNNEST($4) AS i )
             LOOP
                 new_member_id := (SELECT table_member.id FROM table_member WHERE table_member.name = other_member_name);
                 INSERT INTO table_member_group (member_id, group_id, is_owner)

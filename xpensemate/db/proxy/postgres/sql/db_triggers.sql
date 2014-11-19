@@ -148,7 +148,6 @@ $BODY$
 LANGUAGE 'plpgsql';
 
 
-
 CREATE OR REPLACE FUNCTION check_distinct_to_from_members()
   RETURNS TRIGGER AS
 $BODY$
@@ -163,9 +162,33 @@ $BODY$
 LANGUAGE 'plpgsql';
 
 
+CREATE OR REPLACE FUNCTION check_amount_multiple_of_smallest_unit()
+  RETURNS TRIGGER AS
+$BODY$
+DECLARE
+    smallest_unit NUMERIC;
+BEGIN
+    smallest_unit := (SELECT table_group.smallest_unit FROM table_group WHERE table_group.id = NEW.group_id);
+    IF NEW.amount - ROUND(NEW.amount / smallest_unit) * smallest_unit = 0 THEN
+        RETURN NEW;
+    ELSE
+        RAISE EXCEPTION 'The amount is not a multiple of the smallest unit.';
+    END IF;
+END;
+$BODY$
+LANGUAGE 'plpgsql';
+
+
 --
 -- TRIGGER DEFINITIONS
 --
+
+DROP TRIGGER IF EXISTS check_expense_multiple_of_smallest_unit ON table_expense;
+CREATE TRIGGER check_expense_multiple_of_smallest_unit
+    BEFORE INSERT OR UPDATE
+    ON table_expense 
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_amount_multiple_of_smallest_unit();
 
 DROP TRIGGER IF EXISTS check_expense_member_group ON table_expense_member;
 CREATE TRIGGER check_expense_member_group
@@ -187,6 +210,13 @@ CREATE TRIGGER check_group_owner
     ON table_member_group 
     FOR EACH ROW
     EXECUTE PROCEDURE check_group_owner();
+
+DROP TRIGGER IF EXISTS check_transfer_multiple_of_smallest_unit ON table_transfer;
+CREATE TRIGGER check_transfer_multiple_of_smallest_unit
+    BEFORE INSERT OR UPDATE
+    ON table_transfer 
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_amount_multiple_of_smallest_unit();
     
 DROP TRIGGER IF EXISTS check_transfer_member_group ON table_transfer;
 CREATE TRIGGER check_transfer_member_group

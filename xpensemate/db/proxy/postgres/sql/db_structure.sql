@@ -41,6 +41,8 @@ CREATE TABLE table_group (
     id SERIAL
         PRIMARY KEY,
     name VARCHAR(50)
+        NOT NULL,
+    smallest_unit NUMERIC
         NOT NULL
 );
 

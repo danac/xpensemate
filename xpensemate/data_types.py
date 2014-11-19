@@ -45,11 +45,13 @@ class MemberWithCredentials(Member):
 
 
 class Group:
-    def __init__(self, group_id, name, owner, member_balance):
+    def __init__(self, group_id, name, smallest_unit, owner, member_balance):
         #: Group ID
         self.group_id = group_id
         #: Group name
         self.name = name
+        #: Smallest allowed unit for expense and transfer amounts
+        self.smallest_unit = smallest_unit
         #: Name of the group owner
         self.owner = owner
         #: Dictionary of (member name, balance) pairs

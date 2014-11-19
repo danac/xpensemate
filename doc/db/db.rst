@@ -67,6 +67,7 @@ Getters
     :return:
         * id INTEGER
         * name VARCHAR
+        * smallest_unit NUMERIC
        
        
 .. C:function:: get_group(group_id INTEGER)
@@ -76,6 +77,7 @@ Getters
     :return:
         * id INTEGER
         * name VARCHAR
+        * smallest_unit NUMERIC
        
        
 .. C:function:: get_group_members(group_id INTEGER)
@@ -136,7 +138,7 @@ Setters
     :return: Nothing
 
 
-.. C:function:: insert_group(name VARCHAR, owner_name VARCHAR, other_members VARIADIC VARCHAR[])
+.. C:function:: insert_group(name VARCHAR, smallest_unit NUMERIC, owner_name VARCHAR, other_members VARIADIC VARCHAR[])
 
     Creates a new group.
 

@@ -89,7 +89,7 @@ class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
         
         
     def insert_group(self, group):
-        arguments = [group.name, group.owner]
+        arguments = [group.name, group.smallest_unit, group.owner]
         arguments += group.member_balance
         self._execute_stored_procedure("insert_group", *arguments)
         
@@ -136,6 +136,7 @@ class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
         if group_name is None:
             group_details = self._execute_stored_procedure("get_group", group_id)
             group_name = group_details[0][1]
+            smallest_unit = group_details[0][2]
             
         result_set = self._execute_stored_procedure("get_group_members", group_id)
         
@@ -150,6 +151,7 @@ class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
         typed_group = Group(
             group_id=group_id,
             name=group_name,
+            smallest_unit=smallest_unit,
             owner=owner,
             member_balance = balances)
             
