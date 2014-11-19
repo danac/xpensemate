@@ -21,15 +21,17 @@
 #
 
 """
-This module contains various functions used to compute debts among member of
+This module contains the code used to compute debts among members of
 a group.
 """
 
-from xpensemate.utils.partitioning import apply_partitions
+from xpensemate.utils.partitioning import find_zero_balance_subsets
 from xpensemate.utils import benchmark
+
 
 #: Absolute tolerance used to determine if a floating-point numbe ris null.
 TOL = 1e-6
+
 
 def is_null(x):
     """
@@ -41,29 +43,6 @@ def is_null(x):
     
     """
     return abs(x) < TOL
-
-
-def find_zero_balance_subsets(l):
-    """
-    Given a list of summable items, this finds subsets of the list whose
-    elements sum up to zero. This function calls
-    :func:`xpensemate.utils.partitioning.apply_partitions`. It returns the argument
-    as is if the partitioning is not implemented for the right size.
-    
-    :param list l: A list of summable elements.
-    :return: A list of list describing the partitioning.
-    """
-    try:
-        for i in apply_partitions(l):
-            #print("--Checking {}".format(len(i)))
-            flag = True
-            for j in i:
-                flag = flag and is_null(sum(j))
-            if flag:
-                return parts
-    except NotImplementedError:
-        return l,
-    return l,
 
 
 class MemberBalance:
@@ -89,13 +68,15 @@ class MemberBalance:
         
     def __bool__(self):
         return self.value != 0
-            
+    
     def __add__(self, other):
         if isinstance(other, self.__class__):
             return self.value + other.value
         else:
             return self.value + other
     
+    __radd__ = __add__
+        
     def __repr__(self):
         return '"{}":{}'.format(self.name, self.value)
             

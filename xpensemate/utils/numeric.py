@@ -20,11 +20,22 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+"""
+This module contains code used to format and compare floating-point numbers,
+in particular monetary amounts.
+"""
 
-def round_amount(amount, smallest_unit):
-    rounded = round(float(amount)/smallest_unit)*smallest_unit
-    return rounded
+def round_to_closest_multiple(amount, multiple):
+    """
+    Round a value to the closest multiple of a given number. Useful to round
+    an amount to the closest multiple of the smallest monetary unit
+    (e.g. 5 cents).
+    
+    :param float amount: The value to round
+    :param float multiple: The number to the closest multiple of which
+        the value must be rounded
+    :rtype: float
+    """
+    
+    return round(float(amount)/multiple)*multiple
 
-
-def is_amount_null(amount, smallest_unit):
-    return abs(round_amount(amount, smallest_unit)) < smallest_unit

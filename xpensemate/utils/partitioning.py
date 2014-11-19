@@ -20,6 +20,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+"""
+This module contains the code used to find subsets of members who can settle
+their debts on their own.
+"""
+
 import base64
 from xpensemate.utils import partition_list
 
@@ -178,3 +183,26 @@ def create_partition_list(file_path = "_partition_list_inline.py", upper_limit =
             print("Generating partitions for sets of size {}".format(i))
             src = "{}[{}] = {}\n".format(variable_name, i, repr(list(generate_partitions(i))))
             f.write(src)
+
+
+def find_zero_balance_subsets(l):
+    """
+    Given a list of summable items, this finds subsets of the list whose
+    elements sum up to zero. This function calls
+    :func:`xpensemate.utils.partitioning.apply_partitions`. It returns the argument
+    as is if the partitioning is not implemented for the right size.
+    
+    :param list l: A list of summable elements.
+    :return: A list of list describing the partitioning.
+    """
+    try:
+        for i in apply_partitions(l):
+            #print("--Checking {}".format(len(i)))
+            flag = True
+            for j in i:
+                flag = flag and is_null(sum(j))
+            if flag:
+                return parts
+    except NotImplementedError:
+        return l,
+    return l,
