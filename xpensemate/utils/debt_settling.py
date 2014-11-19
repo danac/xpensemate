@@ -20,14 +20,27 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+"""
+This module contains various functions used to compute debts among member of
+a group.
+"""
+
 from xpensemate.utils.partitioning import apply_partitions
 from xpensemate.utils import benchmark
 
+#: Absolute tolerance used to determine if a floating-point numbe ris null.
 TOL = 1e-6
 
-
-def is_sum_null(l):
-    return abs(sum(l)-0) < TOL
+def is_null(x):
+    """
+    Helper function used to assert that a floating-point number is null.
+    The tolerance is defined by :data:`TOL`.
+    
+    :param float x: The number to consider.
+    :rtype: bool
+    
+    """
+    return abs(x) < TOL
 
 
 def find_zero_balance_subsets(l):
@@ -45,7 +58,7 @@ def find_zero_balance_subsets(l):
             #print("--Checking {}".format(len(i)))
             flag = True
             for j in i:
-                flag = flag and is_sum_null(j)
+                flag = flag and is_null(sum(j))
             if flag:
                 return parts
     except NotImplementedError:
@@ -63,61 +76,82 @@ class MemberBalance:
         #: String
         self.name = name
         #: Value which can be compared and added.
-        self.balance = balance
+        self.value = balance
     
     def __lt__(self, other):
         if isinstance(other, self.__class__):
-            return self.balance < other.balance
+            return self.value < other.value
         else:
-            return self.balance < other
+            return self.value < other
     
     def __hash__(self):
         return self.name.__hash__()
         
     def __bool__(self):
-            return self.balance != 0
+        return self.value != 0
             
     def __add__(self, other):
         if isinstance(other, self.__class__):
-            return self.balance + other.balance
+            return self.value + other.value
         else:
-            return self.balance + other
+            return self.value + other
     
-    __radd__ = __add__
-        
-        
     def __repr__(self):
-        return '"{}":{}'.format(self.name, self.balance)
+        return '"{}":{}'.format(self.name, self.value)
             
-    __nonzero__ = __bool__
 
-
-def bipartite_matching(balances):
+def maximum_bipartite_matching(objects):
+    """
+    Find the maximum bipartite matching between positive and negative values
+    in a list which sum up to zero.
     
-    if not any(balances):
+    :param list objects: A list of objects with a readable ``name`` attribute
+        and a writable ``value`` attribute. The same of all values in the list
+        must be zero.
+        
+    :return: A dictionary of dictionaries describing the flow of the matching
+        as follows
+        
+    .. code-block:: python
+    
+        {
+            'Member X':
+            {
+                'Member Y': 4,
+                'Member Z': 6.8,
+                ...
+            },
+            ...
+        }    
+        
+
+    """
+    
+    if not any(objects):
         return {}
-    b = sorted(balances)
+    b = sorted(objects)
     i = j = 0
-    N = len(balances)
+    N = len(objects)
     transfers = {}
+    
     while i != N and j != N:
-        if b[i].balance <= 0:
+        if b[i].value <= 0:
             i += 1
-        elif b[j].balance >= 0:
+        elif b[j].value >= 0:
             j += 1
         else:
-            if b[i].balance < -b[j].balance:
-                m = b[i].balance
+            if b[i].value < -b[j].value:
+                m = b[i].value
             else:
-                m = -b[j].balance
+                m = -b[j].value
             if not b[i].name in transfers:
                 transfers[b[i].name] = {}
                 
             transfers[b[i].name][b[j].name] = m
                 
             #print("{}->{}:{}".format(i,j,m))
-            b[i].balance = b[i].balance - m
-            b[j].balance = b[j].balance + m
+            b[i].value = b[i].value - m
+            b[j].value = b[j].value + m
     
     return transfers
     
@@ -166,11 +200,25 @@ def merge_dicts(dict1, dict2):
             yield (k, dict2[k]) 
 
 
-def calculate_debts(d, smallest_unit, enable_partitioning=True):
+def calculate_debts(d, enable_partitioning=True):
+    """
+    Compute the debts based on a set of balances.
+    
+    :param dict d: Dictionary of balances indexed by member name.
+    :param bool enable_partitioning: Enable the search for subset of members
+        that can settle their debts on their own (can take time for large groups).
+        Even if this parameter is set to True, partitioning is performed only if
+        the partition list is implemented for the right size in
+        :data:`xpensemate.utils.partition_list.partitions`.
+    
+    :return: A dictionary of dictionaries, identical to the output of
+        :func:`maximum_bipartite_matching`.
+        
+    """
     typed_l = []
     for k in d:
         typed_l.append(MemberBalance(k, d[k]))
-    assert is_sum_null(typed_l)
+    assert is_null(sum(typed_l))
     #print("Set cardinality {}".format(len(typed_l)))
     
     if enable_partitioning:
@@ -181,8 +229,8 @@ def calculate_debts(d, smallest_unit, enable_partitioning=True):
     
     transfers = {}
     for part in parts:
-        assert is_sum_null(part), "Bad partitioning error."
-        new_transfers = bipartite_matching(part)
+        assert is_null(sum(part)), "Bad partitioning error."
+        new_transfers = maximum_bipartite_matching(part)
         transfers = dict(merge_dicts(transfers, new_transfers))
         
     num_transfers = 0
@@ -197,7 +245,7 @@ if __name__ == "__main__":
     from decimal import Decimal
     #l = (5, 3.3, -5, -4, 9, -9.2, 11, -6.8, -3.3)#, -5, -4, -1)
     #print("Testing with list:", l)
-    #assert is_sum_null(l)
+    #assert is_null(sum(l))
     #d = {str(k):k for k in l}
     d={'Dana': Decimal('3.3336666666666667'), 'Andy': Decimal('-0.0003333333333333'), 'Victoria': Decimal('-3.3333333333333333')}
     result = calculate_debts(d, 0.05)

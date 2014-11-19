@@ -1,5 +1,5 @@
 
-xpensemate.utils.all_partitions
+xpensemate.utils.debt_settling
 =================================================
 
 .. toctree::
@@ -8,7 +8,7 @@ xpensemate.utils.all_partitions
     
 
 
-.. automodule:: xpensemate.utils.all_partitions
+.. automodule:: xpensemate.utils.debt_settling
     :members:
     :undoc-members:
     :show-inheritance:
