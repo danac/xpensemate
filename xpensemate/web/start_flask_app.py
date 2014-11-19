@@ -22,29 +22,56 @@
 
 import os.path
 import flask
+
 from xpensemate.db.interface.factory import DatabaseInterfaceFactory
+from xpensemate.utils.numeric import round_to_closest_multiple
 
-app = flask.Flask(__name__)
 
+# We'll need the root path of the web app
 ROOT_PATH = os.path.dirname(__file__)
 
+# Get an instance of the backend interface
 db_interface = DatabaseInterfaceFactory.get_interface()    
 
-# set the secret key.  keep this really secret:
+# Instantiate a Flask app
+app = flask.Flask(__name__)
+
+# Set the application secret key, used to sign session data
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+
+# Insert helper functions into Jinja's namespace
+app.jinja_env.globals['round_to_closest_multiple'] = round_to_closest_multiple        
+
 
 @app.route("/")
 @app.route("/groups")
 @app.route("/groups/")
 def groups():
+    """
+    Page displaying the user's groups.
+    
+    Served on the following routes:
+    * /groups
+    * /groups/
+    """
+    
     if 'username' not in flask.session:
         return flask.redirect(flask.url_for('login'))
     member_name = flask.session['username']
     groups = db_interface.get_member_groups(member_name)
     return flask.render_template("groups.htm", groups=groups, member_name=member_name)
     
+    
 @app.route("/groups/<group_id>")
 def group(group_id):
+    """
+    Page displaying a detailed view of a group.
+    :param int group_id: The ID of the group
+    
+    Served on the following routes:
+        * /groups/<group_id>
+    """
+    
     if 'username' not in flask.session:
         return flask.redirect(flask.url_for('login'))
     member_name = flask.session['username']
@@ -52,12 +79,34 @@ def group(group_id):
     groups = db_interface.get_member_groups(member_name)
     return flask.render_template("group_expense.htm", group=group, groups=groups)
 
+
 @app.route('/static/<path:filename>')
 def serve_static(filename):
+    """
+    Route to static files, used for development.
+    :param str filename: The path to the requested static file.
+    
+    Served on the following routes:
+        * /static/<path:filename>
+    """
     return app.send_from_directory(os.path.join(ROOT_PATH, 'static'), filename)    
 
+@app.route('/new_expense', methods=['POST'])
+def new_expense():
+    return str(flask.request.form)
+    
+
 @app.route('/login', methods=['GET', 'POST'])
+@app.route('/login/', methods=['GET', 'POST'])
 def login():
+    """
+    Login page. Redirects to the root URL upon successful login.
+    
+    Served on the following routes:
+        * /login
+        * /login/
+    """
+    
     if 'username' in flask.session:
         return flask.redirect('/')
     elif flask.request.method == 'POST':
@@ -72,11 +121,19 @@ def login():
     else:
         return flask.render_template("login.htm")
 
+
 @app.route('/logout')
 def logout():
+    """
+    Logout route. Redirects to the root URL.
+    
+    Served on the following routes:
+        * /logout
+        * /logout/
+    """
     # remove the username from the session if it's there
     flask.session.pop('username', None)
-    return flask.redirect(flask.url_for('groups'))
+    return flask.redirect('/')
 
 
 if __name__ == "__main__":

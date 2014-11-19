@@ -96,6 +96,29 @@
                                 </td>
                             </tr>
                         {% endfor %}
+                        <tr>
+                        <form id="new-expense-form" class="wy-form" action="/new_expense" method="post">
+                            
+                        
+                            <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+                        
+                        <td>
+                            <input type="text" name="date_info" placeholder="Date" style="width:100%;border-radius: 50px;padding: 6px 12px;"/>
+                        </td>
+                        <td>
+                            <input type="text" name="date_info" placeholder="Amount" style="width:100%;border-radius: 50px;padding: 6px 12px;"/>
+                        </td>
+                        <td>
+                            <input type="text" name="date_info" placeholder="Description" style="width:85%;border-radius: 50px;padding: 6px 12px;"/>
+                            <a id="new-expense-submit" href="#" onclick="document.getElementById('new-expense-form').submit();" class="" style="margin-left:5px">OK <span class="fa fa-arrow-circle-right"></span></a>
+                        </td>
+                        <td>
+                            {% for member in group.member_balance.keys()|sort %}
+                                <input type="checkbox" name="{{ member }}" value="" checked="yes">{{ member }}<br>
+                            {% endfor %}
+                        </td>
+                        </form>
+                        </tr>
                     </tbody>
                 </table>
             </div>
