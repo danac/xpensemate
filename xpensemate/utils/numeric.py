@@ -20,8 +20,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import xpensemate.utils.benchmark
-import xpensemate.utils.cache
-import xpensemate.utils.partitioning
-import xpensemate.utils.partition_list
-import xpensemate.utils.numeric
+
+def round_amount(amount, smallest_unit):
+    rounded = round(float(amount)/smallest_unit)*smallest_unit
+    return rounded
+
+
+def is_amount_null(amount, smallest_unit):
+    return abs(round_amount(amount, smallest_unit)) < smallest_unit
