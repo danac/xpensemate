@@ -132,8 +132,8 @@ class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
         self._execute_stored_procedure("delete_transfer", transfer_id)
         
         
-    def _instantiate_group(self, group_id, group_name=None):
-        if group_name is None:
+    def _instantiate_group(self, group_id, group_name=None, smallest_unit=None):
+        if group_name is None and smallest_unit is None:
             group_details = self._execute_stored_procedure("get_group", group_id)
             group_name = group_details[0][1]
             smallest_unit = group_details[0][2]
