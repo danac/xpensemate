@@ -146,7 +146,7 @@ class StoredFunctionsDatabaseInterface(AbstractDatabaseInterface):
         balances = dict(zip(columns[0], columns[2]))
         
         owner_index = columns[1].index(True)
-        owner = columns[owner_index]
+        owner = columns[0][owner_index]
         
         typed_group = Group(
             group_id=group_id,
