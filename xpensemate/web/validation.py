@@ -39,4 +39,4 @@ def flash_form_errors(form):
             flask.flash(u"Error in the %s field - %s" % (
                 getattr(form, field).label.text,
                 error
-            ))
+            ), 'error')

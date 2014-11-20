@@ -61,6 +61,10 @@
         <h2>Expenses</h2>
         {% if group.expenses|length > 0 %}
             <div class="wy-table-responsive">
+                <form id="new-expense-form" class="wy-form" action="" method="post">
+                {{ form.csrf_token() }}
+                <input name="group_id" type=hidden value="{{ group.group_id }}">
+                <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;">
                 <table class="docutils" border="1" style="width: 100%; table-layout: fixed; word-break: break-all; word-wrap: break-word; -moz-hyphens: auto;">
                     <colgroup>
                         <col width="15%">
@@ -97,11 +101,6 @@
                             </tr>
                         {% endfor %}
                         <tr>
-                        <form id="new-expense-form" class="wy-form" action="#" method="post">
-                            {{ form.csrf_token() }}
-                            <input name="group_id" type=hidden value="{{ group.group_id }}">
-                            <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
-                        
                         <td>
                             {{ form.date_info(style="width:100%;border-radius: 50px;padding: 6px 12px;", placeholder="Date") }}
                         </td>
@@ -117,10 +116,10 @@
                                 {{ member_field(checked="") }} {{ member_field.name }} <br />
                             {% endfor %}
                         </td>
-                        </form>
                         </tr>
                     </tbody>
                 </table>
+                </form>
             </div>
         {% else %}
             <p>No expenses yet.</p>

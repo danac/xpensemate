@@ -20,13 +20,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os.path
+import os
 import flask
 
 from xpensemate.db.interface.factory import DatabaseInterfaceFactory
 from xpensemate.utils.numeric import round_to_closest_multiple
 from xpensemate.web.validation import flash_form_errors
-from xpensemate.web.forms import new_expense_form_factory
+from xpensemate.web.forms import new_expense_form_factory, LoginForm
 
 # We'll need the root path of the web app
 ROOT_PATH = os.path.dirname(__file__)
@@ -38,7 +38,7 @@ db_interface = DatabaseInterfaceFactory.get_interface()
 app = flask.Flask(__name__)
 
 # Set the application secret key, used to sign session data
-app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+app.secret_key = os.urandom(16)#'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 
 # Insert helper functions into Jinja's namespace
@@ -84,12 +84,15 @@ def group(group_id):
     
     NewExpenseForm = new_expense_form_factory(group.member_balance.keys())
     form = NewExpenseForm(flask.request.form)
-    
+
     if flask.request.method == 'POST':
         if form.validate():
-            flask.flash("ALL GOOD")
+            flask.flash("New expense added.", "info")
+            return flask.redirect("/groups/" + group_id)
+            
         elif form.csrf_token.errors:
-            return flask.redirect('/groups')
+            return flask.redirect('/groups/' + group_id)
+            
         else:
             flash_form_errors(form)
     
@@ -125,19 +128,28 @@ def login():
         * /login/
     """
     
+    form = LoginForm(flask.request.form)
+    
     if 'username' in flask.session:
         return flask.redirect('/')
+        
     elif flask.request.method == 'POST':
-        username = flask.request.form['username']
-        try:
-            user = db_interface.get_member_credentials(username)
-        except AssertionError:
-            flask.flash("Bad credential")
+        if form.validate():
+            username = flask.request.form['username']
+            try:
+                user = db_interface.get_member_credentials(username)
+                flask.session['username'] = username
+                return flask.redirect('/')
+            except AssertionError:
+                flask.flash("Bad credential", 'error')
+                
+        elif form.csrf_token.errors:
             return flask.redirect('/login')
-        flask.session['username'] = username
-        return flask.redirect('/')
-    else:
-        return flask.render_template("login.htm")
+            
+        else:
+            flash_form_errors(form)
+        
+    return flask.render_template("login.htm", form=form)
 
 
 @app.route('/logout')

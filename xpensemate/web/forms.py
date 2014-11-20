@@ -21,7 +21,7 @@
 #
 
 """
-This module contains the form defitions
+This module contains the form defitions.
 """
 
 import wtforms as wtf
@@ -31,6 +31,9 @@ import flask
 
 
 class FormBase(wtf.Form):
+    """
+    This common form base class contains Cross-Site-Request-Forgery code
+    """
     class Meta:
         csrf = True
         csrf_class = SessionCSRF
@@ -41,7 +44,26 @@ class FormBase(wtf.Form):
             return flask.session
 
 
+class LoginForm(FormBase):
+    """
+    This class implements the login form.
+    """
+    
+    username = wtf.TextField('Username', [
+        wtf.validators.Required()
+    ])
+    
+    password = wtf.PasswordField('Password', [
+        wtf.validators.Required()
+    ])
+    
+    
 class NewExpenseFormBase(FormBase):
+    """
+    This base class contains the static part of a new expense form.
+    Checkboxes for the group members must be dynamically added
+    upon instantiation.
+    """
         
     date_info = wtf.DateField('Date', [
         wtf.validators.Required()

@@ -82,17 +82,24 @@
                 </div>
                 
                 <div role="main" class="document">
-                {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                <div class="admonition error">
-                    <p class="first admonition-title">Error</p>
-                    {% for message in messages %}
-                        <p class="last">{{ message }}</p>
-                    {% endfor %}
-                </div>
-                {% endif %}
+                {% with messages = get_flashed_messages(with_categories=True) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if category == "error" %}
+                                <div class="admonition error">
+                                <p class="first admonition-title">Error</p>
+                            {% elif category == "info" %}
+                                <div class="admonition note">
+                                <p class="first admonition-title">Info</p>
+                            {% endif%}
+                                <p class="last">{{ message }}</p>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 {% endwith %}
+                
                 {% block main_content %}{% endblock %}
+                
                 </div>
                 
                 <footer>
