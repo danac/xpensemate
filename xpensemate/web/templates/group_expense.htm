@@ -69,8 +69,9 @@
                     <colgroup>
                         <col width="15%">
                         <col width="13%">
-                        <col width="40%">
+                        <col width="37%">
                         <col width="16%">
+                        <col width="3%">
                     </colgroup>
                     <thead valign="bottom">
                         <tr class="row-odd">
@@ -78,6 +79,7 @@
                             <th class="head" style="border-right:1px solid #E1E4E5">Amount</th>
                             <th class="head" style="border-right:1px solid #E1E4E5">Description</th>
                             <th class="head" style="border-right:1px solid #E1E4E5">Members</th>
+                            <th class="head" style="border-right:1px solid #E1E4E5"></th>
                         </tr>
                     </thead>
                     <tbody valign="top">
@@ -85,7 +87,7 @@
                             <tr class="row-odd">
                                 <td>{{ expense.date }}</td>
                                 <td>{{ "%0.2f"|format((expense.amount|float/0.05)|round*0.05) }}</td>
-                                <td>{{ expense.description }}</td>
+                                <td>{{ expense.description }}&nbsp;</td>
                                 <td>
                                     {% for member in group.member_balance.keys()|sort %}
                                         {% if member == expense.maker %}
@@ -93,10 +95,15 @@
                                         {% elif member in expense.members %}
                                             <span style="color:#27AE60">&#10004;
                                         {% else %}
-                                            <span style="color:#B80000">&#10007;
+                                            <span style="color:#A8A8A8 ">&#10007;
                                         {% endif %}
                                             {{ member }}</span><br />
                                     {% endfor %}
+                                </td>
+                                <td style="padding:5px">
+                                    {% if expense.maker == member_name %}
+                                        <a class="headerlink" href="#xpensemate.utils.partition_list.PartitionList" title="Permalink to this definition"><span style="color:#B80000">&#10007;</span></a>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -116,6 +123,7 @@
                                 {{ member_field(checked="") }} {{ member_field.name }} <br />
                             {% endfor %}
                         </td>
+                        <td></td>
                         </tr>
                     </tbody>
                 </table>

@@ -96,7 +96,7 @@ def group(group_id):
         else:
             flash_form_errors(form)
     
-    return flask.render_template("group_expense.htm", group=group, groups=groups, form=form)
+    return flask.render_template("group_expense.htm", group=group, groups=groups, form=form, member_name=member_name)
 
 
 @app.route('/static/<path:filename>')
