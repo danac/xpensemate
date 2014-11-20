@@ -24,46 +24,19 @@
 This module contains the code used to validate form submissions.
 """
 
-import random
-import string
 import flask
 
 
-CSRF_TOKEN_NAME = "csrf_token"
-CSRF_TOKEN_LENGTH = 10
-
-
-def generate_random_string(length):
+def flash_form_errors(form):
     """
-    Generate a random string of alphanumeric characters (upper and lower case)
+    Send form validation errors to the client"
     
-    :param int length: Length of the string to generate
-    :rtype: str
-    """
-    alphabet = string.ascii_letters + string.digits
-    random_list = [random.choice(alphabet) for i in range(length)]
-    return ''.join(random_list)
-    
-    
-def get_csrf_token():
-    """
-    Stores a random token in the session cookie (if not already present)
-    and returns it. Used to prevent Cross-Site-Request-Forgery.
-    
-    :rtype: str
+    :param form: An ``wtforms.Form`` instance.
     """
     
-    if CSRF_TOKEN_NAME not in flask.session:
-        flask.session[CSRF_TOKEN_NAME] = generate_random_string(CSRF_TOKEN_LENGTH)
-    return flask.session[CSRF_TOKEN_NAME]
-    
-    
-def check_csrf_token():
-    """
-    Check that the CSRF token sent in the POST'd data matches the one in the 
-    session cookie.
-    """
-    if flask.request.method == "POST":
-        token = flask.session.pop(CSRF_TOKEN_NAME, None)
-        if not token or token != flask.request.form.get(CSRF_TOKEN_NAME):
-            flask.abort(403)        
+    for field, errors in form.errors.items():
+        for error in errors:
+            flask.flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
+            ))

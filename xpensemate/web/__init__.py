@@ -21,3 +21,4 @@
 #
 
 import xpensemate.web.validation
+import xpensemate.web.forms
