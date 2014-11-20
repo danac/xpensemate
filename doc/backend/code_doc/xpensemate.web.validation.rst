@@ -1,15 +1,14 @@
 
-xpensemate.db
+xpensemate.web.validation
 =================================================
 
 .. toctree::
     :maxdepth: 10
 
-    xpensemate.db.interface
-    xpensemate.db.proxy
+    
 
 
-.. automodule:: xpensemate.db
+.. automodule:: xpensemate.web.validation
     :members:
     :undoc-members:
     :show-inheritance:

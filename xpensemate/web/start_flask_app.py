@@ -25,7 +25,7 @@ import flask
 
 from xpensemate.db.interface.factory import DatabaseInterfaceFactory
 from xpensemate.utils.numeric import round_to_closest_multiple
-
+from xpensemate.web.validation import get_csrf_token, check_csrf_token
 
 # We'll need the root path of the web app
 ROOT_PATH = os.path.dirname(__file__)
@@ -40,8 +40,15 @@ app = flask.Flask(__name__)
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 # Insert helper functions into Jinja's namespace
-app.jinja_env.globals['round_to_closest_multiple'] = round_to_closest_multiple        
+for method in ['round_to_closest_multiple',
+               'get_csrf_token']:
+    app.jinja_env.globals[method] = globals()[method]
 
+
+# Register the CSRF check function in the app
+@app.before_request
+def csrf_protection():
+    check_csrf_token()
 
 @app.route("/")
 @app.route("/groups")

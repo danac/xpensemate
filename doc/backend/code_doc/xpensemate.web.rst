@@ -6,6 +6,7 @@ xpensemate.web
     :maxdepth: 10
 
     xpensemate.web.start_flask_app
+    xpensemate.web.validation
 
 
 .. automodule:: xpensemate.web
