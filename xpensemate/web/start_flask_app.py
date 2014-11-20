@@ -26,7 +26,8 @@ import flask
 from xpensemate.db.interface.factory import DatabaseInterfaceFactory
 from xpensemate.utils.numeric import round_to_closest_multiple
 from xpensemate.web.validation import flash_form_errors
-from xpensemate.web.forms import new_expense_form_factory, LoginForm
+from xpensemate.web import forms
+
 
 # We'll need the root path of the web app
 ROOT_PATH = os.path.dirname(__file__)
@@ -79,13 +80,14 @@ def group(group_id):
         return flask.redirect(flask.url_for('login'))
         
     member_name = flask.session['username']
+
     group = db_interface.get_group_with_movements(group_id)
     groups = db_interface.get_member_groups(member_name)
     
-    NewExpenseForm = new_expense_form_factory(group.member_balance.keys())
-    form = NewExpenseForm(flask.request.form)
-
-    if flask.request.method == 'POST':
+    ExpenseForm = forms.expense_form_factory(group.member_balance.keys())
+    form = ExpenseForm(flask.request.form)
+    
+    if flask.request.method == 'POST' and flask.request.form['action'] == "new":
         if form.validate():
             flask.flash("New expense added.", "info")
             return flask.redirect("/groups/" + group_id)
@@ -95,8 +97,23 @@ def group(group_id):
             
         else:
             flash_form_errors(form)
+            
+    elif flask.request.method == 'POST' and flask.request.form['action'] == "delete":
+        form.remove_insertion_fields()
+        
+        if form.validate():
+            flask.flash("Deleted expense:" + flask.request.form['expense_id'], "info")
+            return flask.redirect("/groups/" + group_id)
+
+        else:
+            print("Validation failure")
+            return flask.redirect('/groups/' + group_id)
     
-    return flask.render_template("group_expense.htm", group=group, groups=groups, form=form, member_name=member_name)
+    return flask.render_template("group_expense.htm",
+                                 group=group,
+                                 groups=groups,
+                                 form=form, 
+                                 member_name=member_name)
 
 
 @app.route('/static/<path:filename>')
@@ -128,7 +145,7 @@ def login():
         * /login/
     """
     
-    form = LoginForm(flask.request.form)
+    form = forms.LoginForm(flask.request.form)
     
     if 'username' in flask.session:
         return flask.redirect('/')

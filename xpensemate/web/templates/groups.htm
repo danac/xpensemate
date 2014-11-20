@@ -37,11 +37,11 @@
                 </dt>
                 </a>
                 <dd>
-                    {% for member in group.member_balance.keys() %}
+                    {% for member in group.member_balance.keys()|sort %}
                     <dl class="attribute" style="margin-bottom:10px">
-                        <dt>
+                        <dt{% if group.owner == member %} style="background:none repeat scroll 0% 0% #F0F0D0" {% endif %}>
                             <tt class="descname">{{ member }}</tt>
-                            (balance:
+                            ({% if group.owner == member %}group owner, {% endif %}balance:
                             {% if (group.member_balance[member]|float/0.05)|round*0.05 == 0  %}
                                 <span class="viewcode-link" style="padding-left:5px;color:#000000">
                                     {{ 0 }}

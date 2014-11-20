@@ -29,6 +29,8 @@ from wtforms.csrf.session import SessionCSRF
 import os
 import flask
 
+from xpensemate.web import validation
+
 
 class FormBase(wtf.Form):
     """
@@ -50,45 +52,73 @@ class LoginForm(FormBase):
     """
     
     username = wtf.TextField('Username', [
-        wtf.validators.Required()
+        wtf.validators.DataRequired(),
+        validation.wtforms_validation()
     ])
     
     password = wtf.PasswordField('Password', [
-        wtf.validators.Required()
+        wtf.validators.InputRequired()
     ])
     
     
-class NewExpenseFormBase(FormBase):
+class ExpenseFormBase(FormBase):
     """
     This base class contains the static part of a new expense form.
     Checkboxes for the group members must be dynamically added
     upon instantiation.
     """
-        
+    
+    action = wtf.HiddenField('action', [
+        wtf.validators.DataRequired()
+    ], default="new")
+    
+    group_id = wtf.HiddenField('group_id', [
+        wtf.validators.DataRequired()
+    ])
+
     date_info = wtf.DateField('Date', [
-        wtf.validators.Required()
+        wtf.validators.DataRequired()
     ])
     
     description = wtf.TextField('Description', [
-        wtf.validators.Required()
+        wtf.validators.DataRequired()
     ])
     
     amount = wtf.DecimalField('Amount', [
-        wtf.validators.Required(),
+        wtf.validators.DataRequired(),
         wtf.validators.NumberRange(min=0.0)
     ])
+    
+    expense_id = wtf.HiddenField('expense_id', [
+        wtf.validators.Optional()
+    ])
+    
+    
             
-
-def new_expense_form_factory(members):        
-    class NewExpenseForm(NewExpenseFormBase):
+def expense_form_factory(members):    
+    """
+    Factory function that dynamically defines and returns a sub-classes
+    of :class:`ExpenseFormBase` with one checkbox field per member.
+    
+    :param list members: A list of member names.
+    """
+    
+    class ExpenseForm(ExpenseFormBase):
         
         def get_member_fields(self):
             return [getattr(self, member) for member in members]
+            
+        def remove_insertion_fields(self):
+            del self.date_info
+            del self.description
+            del self.amount
+            for member in members:
+                delattr(self, member)
 
     for member in members:
         field = wtf.BooleanField(member)
-        setattr(NewExpenseForm, member, field)  
+        setattr(ExpenseForm, member, field)  
     
-    return NewExpenseForm
+    return ExpenseForm
 
 

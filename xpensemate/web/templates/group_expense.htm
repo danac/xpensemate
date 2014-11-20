@@ -61,9 +61,14 @@
         <h2>Expenses</h2>
         {% if group.expenses|length > 0 %}
             <div class="wy-table-responsive">
-                <form id="new-expense-form" class="wy-form" action="" method="post">
+                <form id="expense-form" class="wy-form" action="" method="post">
                 {{ form.csrf_token() }}
+<!--
                 <input name="group_id" type=hidden value="{{ group.group_id }}">
+-->
+                {{ form.group_id(value=group.group_id) }}
+                {{ form.action(id="expense-form-action") }}
+                {{ form.expense_id(id="expense-form-expense-id") }}
                 <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;">
                 <table class="docutils" border="1" style="width: 100%; table-layout: fixed; word-break: break-all; word-wrap: break-word; -moz-hyphens: auto;">
                     <colgroup>
@@ -101,8 +106,8 @@
                                     {% endfor %}
                                 </td>
                                 <td style="padding:5px">
-                                    {% if expense.maker == member_name %}
-                                        <a class="headerlink" href="#xpensemate.utils.partition_list.PartitionList" title="Permalink to this definition"><span style="color:#B80000">&#10007;</span></a>
+                                    {% if expense.maker == member_name or group.owner == member_name %}
+                                        <a href="#" onclick="document.getElementById('expense-form-action').value='delete';document.getElementById('expense-form-expense-id').value={{expense.expense_id}};document.getElementById('expense-form').submit();" ><span style="color:#B80000">&#10007;</span></a>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -116,7 +121,7 @@
                         </td>
                         <td>
                             {{ form.description(style="width:85%;border-radius: 50px;padding: 6px 12px;", placeholder="Description") }}
-                            <a id="new-expense-submit" href="#" onclick="document.getElementById('new-expense-form').submit();" class="" style="margin-left:5px">OK <span class="fa fa-arrow-circle-right"></span></a>
+                            <a id="new-expense-submit" href="#" onclick="document.getElementById('expense-form').submit();" class="" style="margin-left:5px">OK <span class="fa fa-arrow-circle-right"></span></a>
                         </td>
                         <td>
                             {% for member_field in form.get_member_fields() %}
