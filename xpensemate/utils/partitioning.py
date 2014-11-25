@@ -25,7 +25,6 @@ This module contains the code used to find subsets of members who can settle
 their debts on their own.
 """
 
-import base64
 from xpensemate.utils import partition_list
 
 

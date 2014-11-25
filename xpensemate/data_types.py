@@ -77,10 +77,8 @@ class Group:
             (see :func:`xpensemate.utils.all_partitions.calculate_debts`)
         
         """
-        debts = calculate_debts(self.member_balance, self.smallest_unit)
+        return calculate_debts(self.member_balance, self.smallest_unit)
                 
-        return debts
-        
 
 class Expense:
     def __init__(self, description, date, amount, maker, members , expense_id=None):

@@ -45,7 +45,7 @@ def _insert_group():
                       {member_name:0.0})
                       
     db_interface.insert_group(new_group)
-    flask.flash("Created group " + group_name, 'info')
+    flask.flash("Created group {}.".format(group_name), 'info')
 
 
 def _delete_group():

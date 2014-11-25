@@ -111,7 +111,8 @@ def process_new_delete_form(form, callback_new, callback_delete, args_new = None
     member_name = flask.session['username']
     
     redirect = False
-    
+    # Do not redirect if there are errors in the forms when inserting
+    # because the values entered by the user do not re-appear in the fields
     if flask.request.form['action'] == "new":
         if form.validate():
             
@@ -146,7 +147,6 @@ def process_new_delete_form(form, callback_new, callback_delete, args_new = None
                     callback_delete(args_delete)
                 else:
                     callback_delete()
-                return_value = True
         
             except exceptions.DatabaseError as e:
                 flask.flash("A database error occured. Please report it.", 'error')
@@ -157,4 +157,4 @@ def process_new_delete_form(form, callback_new, callback_delete, args_new = None
     else:
         raise ValueError("Bad form action")
     
-    return return_value
+    return redirect
