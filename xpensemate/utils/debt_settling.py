@@ -125,10 +125,10 @@ def maximum_bipartite_matching(objects):
                 m = b[i].value
             else:
                 m = -b[j].value
-            if not b[i].name in transfers:
-                transfers[b[i].name] = {}
+            if not b[j].name in transfers:
+                transfers[b[j].name] = {}
                 
-            transfers[b[i].name][b[j].name] = m
+            transfers[b[j].name][b[i].name] = m
                 
             #print("{}->{}:{}".format(i,j,m))
             b[i].value = b[i].value - m
@@ -181,11 +181,13 @@ def merge_dicts(dict1, dict2):
             yield (k, dict2[k]) 
 
 
-def calculate_debts(d, enable_partitioning=True):
+def calculate_debts(d, smallest_unit, enable_partitioning=True):
     """
     Compute the debts based on a set of balances.
     
     :param dict d: Dictionary of balances indexed by member name.
+    :param float smallest_unit: The lower threshold below which a debt is
+        considered null.
     :param bool enable_partitioning: Enable the search for subset of members
         that can settle their debts on their own (can take time for large groups).
         Even if this parameter is set to True, partitioning is performed only if
@@ -205,7 +207,7 @@ def calculate_debts(d, enable_partitioning=True):
     if enable_partitioning:
         parts = find_zero_balance_subsets(typed_l)
     else:
-        parts = [typed_is_suml]
+        parts = [typed_l]
     #print("Using a {}-partition".format(len(parts)))
     
     transfers = {}
@@ -213,10 +215,21 @@ def calculate_debts(d, enable_partitioning=True):
         assert is_null(sum(part)), "Bad partitioning error."
         new_transfers = maximum_bipartite_matching(part)
         transfers = dict(merge_dicts(transfers, new_transfers))
-        
-    num_transfers = 0
-    for key, val in transfers.items():
-        num_transfers += len(val)
+
+    for key1 in list(transfers):
+        for key2 in list(transfers[key1]):
+            amount = transfers[key1][key2]
+
+            if amount < smallest_unit:
+                transfers[key1].pop(key2)
+                
+    for key1 in list(transfers):
+        if len(transfers[key1]) == 0:
+            transfers.pop(key1)
+            
+    #num_transfers = 0
+    #for key, val in transfers.items():
+        #num_transfers += len(val)
     #print("Total number of bipartite matches {}".format(num_transfers))
     
     return transfers

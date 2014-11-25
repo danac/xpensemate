@@ -28,8 +28,7 @@ in particular monetary amounts.
 def round_to_closest_multiple(amount, multiple):
     """
     Round a value to the closest multiple of a given number. Useful to round
-    an amount to the closest multiple of the smallest monetary unit
-    (e.g. 5 cents).
+    an amount to the smallest monetary unit (e.g. 5 cents).
     
     :param float amount: The value to round
     :param float multiple: The number to the closest multiple of which
@@ -37,5 +36,5 @@ def round_to_closest_multiple(amount, multiple):
     :rtype: float
     """
     
-    return round(float(amount)/multiple)*multiple
+    return round(float(amount)/float(multiple))*float(multiple)
 

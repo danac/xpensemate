@@ -22,7 +22,7 @@
 
 import psycopg2
 from xpensemate.db.proxy.abstract_proxy import AbstractDatabaseProxy
-
+from xpensemate import exceptions
 
 # Convert psycopg2's default Decimal type to regular Python floats
 #DEC2FLOAT = psycopg2.extensions.new_type(
@@ -52,13 +52,16 @@ class SingleConnectionProxy(AbstractDatabaseProxy):
         self.connection = psycopg2.connect(database=database, user=user, password=password)
     
     def query(self, query_string):
-        cur = self.connection.cursor()
         try:
-            cur.execute(query_string)
-            results = cur.fetchall()
-        finally:
-            self.connection.commit()
-            cur.close()
+            cur = self.connection.cursor()
+            try:
+                cur.execute(query_string)
+                results = cur.fetchall()
+            finally:
+                self.connection.commit()
+                cur.close()
+        except Exception as e:
+            raise exceptions.DatabaseError(e)
         return results
 
 ProxyClass = SingleConnectionProxy

@@ -170,13 +170,10 @@ CREATE OR REPLACE FUNCTION get_member_balance(member_name VARCHAR, group_id INTE
     RETURNS NUMERIC AS
     $BODY$
         -- Difference of the amounts to pay and already paid
-        SELECT ROUND(
-                    (COALESCE(share_to_pay_agg.amount, 0.0)
+        SELECT COALESCE(share_to_pay_agg.amount, 0.0)
                     - COALESCE(expenses_made_agg.amount, 0.0)
                     - COALESCE(transfers_made_agg.amount, 0.0)
-                    + COALESCE(transfers_received_agg.amount, 0.0))
-                    / table_group.smallest_unit)
-                * table_group.smallest_unit
+                    + COALESCE(transfers_received_agg.amount, 0.0)
                AS balance
         FROM
             table_group,
@@ -305,13 +302,11 @@ CREATE OR REPLACE FUNCTION insert_member(member_name VARCHAR,
 -- Create a new group
 CREATE OR REPLACE FUNCTION insert_group(name VARCHAR,
                                         smallest_unit NUMERIC,
-                                        owner_name VARCHAR,
-                                        other_members VARIADIC VARCHAR[])
+                                        owner_name VARCHAR)
     RETURNS INTEGER AS
     $BODY$
         DECLARE
             group_id INTEGER;
-            other_member_name VARCHAR;
             new_member_id INTEGER;
         BEGIN
             INSERT INTO table_group (name, smallest_unit)
@@ -320,12 +315,6 @@ CREATE OR REPLACE FUNCTION insert_group(name VARCHAR,
             new_member_id := (SELECT table_member.id FROM table_member WHERE table_member.name = $3);
             INSERT INTO table_member_group (member_id, group_id, is_owner)
                 VALUES (new_member_id, group_id, TRUE);
-            FOR other_member_name IN (SELECT i FROM UNNEST($4) AS i )
-            LOOP
-                new_member_id := (SELECT table_member.id FROM table_member WHERE table_member.name = other_member_name);
-                INSERT INTO table_member_group (member_id, group_id, is_owner)
-                    VALUES (new_member_id, group_id, FALSE);
-            END LOOP;
             RETURN group_id;
         END
     $BODY$
@@ -334,16 +323,20 @@ CREATE OR REPLACE FUNCTION insert_group(name VARCHAR,
     
     
 -- Create a new group member
-CREATE OR REPLACE FUNCTION insert_group_member(new_member_name VARCHAR,
-                                               target_group_id INTEGER)
+CREATE OR REPLACE FUNCTION insert_group_members(target_group_id INTEGER,
+                                                new_member_names VARIADIC VARCHAR[])
     RETURNS VOID AS
     $BODY$
         DECLARE
             new_member_id INTEGER;
+            new_member_name VARCHAR;
         BEGIN
-            new_member_id := (SELECT table_member.id FROM table_member WHERE table_member.name = $1);
-            INSERT INTO table_member_group (member_id, group_id, is_owner)
-                VALUES (new_member_id, $2, FALSE);
+            FOR new_member_name IN (SELECT i FROM UNNEST($2) AS i)
+            LOOP
+                new_member_id := (SELECT table_member.id FROM table_member WHERE table_member.name = new_member_name);
+                INSERT INTO table_member_group (member_id, group_id, is_owner)
+                    VALUES (new_member_id, $1, FALSE);
+            END LOOP;
         END
     $BODY$
     LANGUAGE 'plpgsql'

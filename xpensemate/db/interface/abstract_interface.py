@@ -104,12 +104,12 @@ class AbstractDatabaseInterface(metaclass=abc.ABCMeta):
         
         
     @abc.abstractmethod
-    def insert_group_member(self, member_name, group_id): # pragma: no cover
+    def insert_group_members(self, group_id, member_names): # pragma: no cover
         """
         Adds a member to an existing group.
-     
-        :param str member_name: The name of the member.
+
         :param int group_id: The ID of the group.
+        :param list member_names: The names of the member.
         :return: Nothing
         """
         pass

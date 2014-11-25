@@ -23,11 +23,13 @@
 """
 This modules implements some simple containers to store results from the database.
 
-.. Note:: The convention here is that constructors takes **keyword-arguments whose names
+.. Note:: The convention here is that constructors take **keyword-arguments whose names
     match the attribute names**.
 """
 
 from xpensemate.utils.debt_settling import calculate_debts
+from xpensemate.utils.numeric import round_to_closest_multiple
+
 
 class Member:
     def __init__(self, name):
@@ -45,7 +47,7 @@ class MemberWithCredentials(Member):
 
 
 class Group:
-    def __init__(self, group_id, name, smallest_unit, owner, member_balance):
+    def __init__(self, name, smallest_unit, owner, member_balance, group_id=None):
         #: Group ID
         self.group_id = group_id
         #: Group name
@@ -56,6 +58,15 @@ class Group:
         self.owner = owner
         #: Dictionary of (member name, balance) pairs
         self.member_balance = member_balance
+    
+    @property
+    def members(self):
+        """
+        Get the list of members in this group.
+        
+        :rtype: list
+        """
+        return sorted(self.member_balance.keys())
         
     @property
     def debts(self):
@@ -66,11 +77,13 @@ class Group:
             (see :func:`xpensemate.utils.all_partitions.calculate_debts`)
         
         """
-        return calculate_debts(self.member_balance)
+        debts = calculate_debts(self.member_balance, self.smallest_unit)
+                
+        return debts
         
 
 class Expense:
-    def __init__(self, expense_id, description, date, amount, maker, members):
+    def __init__(self, description, date, amount, maker, members , expense_id=None):
         #: Expense ID
         self.expense_id = expense_id
         #: Expense description
@@ -86,7 +99,7 @@ class Expense:
 
 
 class Transfer:
-    def __init__(self, transfer_id, date, amount, from_member, to_member):
+    def __init__(self, date, amount, from_member, to_member, transfer_id=None):
         #: Transfer ID
         self.transfer_id = transfer_id
         #: Transfer date

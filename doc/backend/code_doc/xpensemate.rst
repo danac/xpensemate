@@ -5,11 +5,12 @@ xpensemate
 .. toctree::
     :maxdepth: 10
 
-    xpensemate.config
-    xpensemate.data_types
     xpensemate.utils
-    xpensemate.db
     xpensemate.web
+    xpensemate.config
+    xpensemate.exceptions
+    xpensemate.data_types
+    xpensemate.db
 
 
 .. automodule:: xpensemate

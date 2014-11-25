@@ -44,7 +44,7 @@
                                 <td>
                                         {% for other_member in group.debts[member].keys() %}
                                             {% if ((group.debts[member][other_member]|float/0.05)|round*0.05)|abs > 0 %}
-                                            {{ other_member }} : {{ "%0.2f"|format((group.debts[member][other_member]|float/0.05)|round*0.05) }}
+                                            {{ other_member }} : {{ "%0.2f"|format((group.debts[member][other_member]|float/0.05)|round*0.05) }} <br />
                                             {% endif %}
                                         {% endfor %}
                                 </td>
@@ -62,13 +62,10 @@
         {% if group.expenses|length > 0 %}
             <div class="wy-table-responsive">
                 <form id="expense-form" class="wy-form" action="" method="post">
-                {{ form.csrf_token() }}
-<!--
-                <input name="group_id" type=hidden value="{{ group.group_id }}">
--->
-                {{ form.group_id(value=group.group_id) }}
-                {{ form.action(id="expense-form-action") }}
-                {{ form.expense_id(id="expense-form-expense-id") }}
+                {{ expense_form.csrf_token() }}
+                {{ expense_form.form_name() }}
+                {{ expense_form.action(id="expense-form-action") }}
+                {{ expense_form.expense_id(id="expense-form-expense-id") }}
                 <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;">
                 <table class="docutils" border="1" style="width: 100%; table-layout: fixed; word-break: break-all; word-wrap: break-word; -moz-hyphens: auto;">
                     <colgroup>
@@ -94,7 +91,7 @@
                                 <td>{{ "%0.2f"|format((expense.amount|float/0.05)|round*0.05) }}</td>
                                 <td>{{ expense.description }}&nbsp;</td>
                                 <td>
-                                    {% for member in group.member_balance.keys()|sort %}
+                                    {% for member in group.members %}
                                         {% if member == expense.maker %}
                                             <span style="color:#274FAE">&#10026;
                                         {% elif member in expense.members %}
@@ -107,28 +104,31 @@
                                 </td>
                                 <td style="padding:5px">
                                     {% if expense.maker == member_name or group.owner == member_name %}
-                                        <a href="#" onclick="document.getElementById('expense-form-action').value='delete';document.getElementById('expense-form-expense-id').value={{expense.expense_id}};document.getElementById('expense-form').submit();" ><span style="color:#B80000">&#10007;</span></a>
+                                        <a href="javascript:void(0)" onclick="document.getElementById('expense-form-action').value='delete';document.getElementById('expense-form-expense-id').value={{expense.expense_id}};document.getElementById('expense-form').submit();" ><span style="color:#B80000">&#10007;</span></a>
                                     {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
                         <tr>
-                        <td>
-                            {{ form.date_info(style="width:100%;border-radius: 50px;padding: 6px 12px;", placeholder="Date") }}
-                        </td>
-                        <td>
-                            {{ form.amount(style="width:100%;border-radius: 50px;padding: 6px 12px;", placeholder="Amount") }}
-                        </td>
-                        <td>
-                            {{ form.description(style="width:85%;border-radius: 50px;padding: 6px 12px;", placeholder="Description") }}
-                            <a id="new-expense-submit" href="#" onclick="document.getElementById('expense-form').submit();" class="" style="margin-left:5px">OK <span class="fa fa-arrow-circle-right"></span></a>
-                        </td>
-                        <td>
-                            {% for member_field in form.get_member_fields() %}
-                                {{ member_field(checked="") }} {{ member_field.name }} <br />
-                            {% endfor %}
-                        </td>
-                        <td></td>
+                            <td>
+                                {{ expense_form.date(style="width:100%;border-radius: 50px;padding: 6px 12px;", placeholder="Date") }}
+                            </td>
+                            <td>
+                                {{ expense_form.amount(style="width:100%;border-radius: 50px;padding: 6px 12px;", placeholder="Amount") }}
+                            </td>
+                            <td>
+                                {{ expense_form.description(style="width:100%;border-radius: 50px;padding: 6px 12px;", placeholder="Description") }}
+                            </td>
+                            <td>
+                                {% for member_field in expense_form.get_member_fields() %}
+                                    {% if member_field.name != member_name %}
+                                        {{ member_field(checked="") }} {{ member_field.name }} <br />
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td style="padding:2px">
+                                <a id="new-expense-submit" href="javascript:void(0)" onclick="document.getElementById('expense-form').submit();" class="" style="margin-left:5px"><span class="fa fa-arrow-circle-right"></span></a>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -141,17 +141,25 @@
         <h2>Transfers</h2>
         {% if group.transfers|length > 0 %}
             <div class="wy-table-responsive">
+                <form id="transfer-form" class="wy-form" action="" method="post">
+                {{ transfer_form.csrf_token() }}
+                {{ transfer_form.form_name() }}
+                {{ transfer_form.action(id="transfer-form-action") }}
+                {{ transfer_form.transfer_id(id="transfer-form-transfer-id") }}
+                <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;">
                 <table class="docutils" border="1" style="width: 100%; table-layout: fixed; word-break: break-all; word-wrap: break-word; -moz-hyphens: auto;">
                     <colgroup>
                         <col width="15%">
                         <col width="13%">
-                        <col width="56%">
+                        <col width="53%">
+                        <col width="3%">
                     </colgroup>
                     <thead valign="bottom">
                         <tr class="row-odd">
                             <th class="head" style="border-right:1px solid #E1E4E5">Date</th>
                             <th class="head" style="border-right:1px solid #E1E4E5">Amount</th>
                             <th class="head" style="border-right:1px solid #E1E4E5">From/To</th>
+                            <th class="head" style="border-right:1px solid #E1E4E5"></th>
                         </tr>
                     </thead>
                     <tbody valign="top">
@@ -162,10 +170,30 @@
                                 <td>
                                     {{ transfer.from_member}} <big>&#10148;</big> {{ transfer.to_member }}
                                 </td>
+                                <td style="padding:5px">
+                                    {% if transfer.from_member == member_name or group.owner == member_name %}
+                                        <a href="javascript:void(0)" onclick="document.getElementById('transfer-form-action').value='delete';document.getElementById('transfer-form-transfer-id').value={{transfer.transfer_id}};document.getElementById('transfer-form').submit();" ><span style="color:#B80000">&#10007;</span></a>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
+                        <tr>
+                            <td>
+                                {{ transfer_form.date(style="width:100%;border-radius: 50px;padding: 6px 12px;", placeholder="Date") }}
+                            </td>
+                            <td>
+                                {{ transfer_form.amount(style="width:100%;border-radius: 50px;padding: 6px 12px;", placeholder="Amount") }}
+                            </td>
+                            <td>
+                                {{member_name}} <big>&#10148;</big> &nbsp;{% for radio_button in transfer_form.to_member %}  {{ radio_button() }} {{ radio_button.label.text }} &nbsp; {% endfor %}
+                            </td>
+                            <td style="padding:2px">
+                                <a href="javascript:void(0)" onclick="document.getElementById('transfer-form').submit();" class="" style="margin-left:5px"><span class="fa fa-arrow-circle-right"></span></a>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
+                </form>
             </div>
         {% else %}
             <p>No transfers yet.</p>

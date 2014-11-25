@@ -32,8 +32,8 @@ GRANT EXECUTE ON FUNCTION get_group_transfers(INTEGER) TO xpensemate_function_in
 GRANT EXECUTE ON FUNCTION get_member_balance(VARCHAR, INTEGER) TO xpensemate_function_invoker;
 
 GRANT EXECUTE ON FUNCTION insert_member(VARCHAR, VARCHAR) TO xpensemate_function_invoker;
-GRANT EXECUTE ON FUNCTION insert_group(VARCHAR, VARCHAR, VARIADIC VARCHAR[]) TO xpensemate_function_invoker;
-GRANT EXECUTE ON FUNCTION insert_group_member(VARCHAR, INTEGER) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION insert_group(VARCHAR, NUMERIC, VARCHAR) TO xpensemate_function_invoker;
+GRANT EXECUTE ON FUNCTION insert_group_members(INTEGER, VARIADIC VARCHAR[]) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION insert_expense(DATE, VARCHAR, NUMERIC, INTEGER, VARCHAR, VARIADIC VARCHAR[]) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION insert_transfer(DATE, NUMERIC, INTEGER, VARCHAR, VARCHAR) TO xpensemate_function_invoker;
 GRANT EXECUTE ON FUNCTION delete_expense(INTEGER) TO xpensemate_function_invoker;

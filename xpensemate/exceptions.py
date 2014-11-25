@@ -20,8 +20,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import xpensemate.db
-import xpensemate.utils
-import xpensemate.data_types
-import xpensemate.config
-import xpensemate.exceptions
+
+class DatabaseError(Exception):
+    pass

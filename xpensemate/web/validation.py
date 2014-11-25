@@ -28,28 +28,52 @@ import flask
 import wtforms
 
 from xpensemate.config import DBConfig
+from xpensemate.utils.numeric import round_to_closest_multiple
+from xpensemate import exceptions
+
+class AmountValidator:
+
+    message = "Amount field must be greater than zero and be rounded to the \
+        smallest monetary unit."
+    
+    @staticmethod
+    def validate(value, smallest_unit):
+        """
+        Amount validation function. Forbids null and negative amount and checks
+        rounding to the group's smallest monetary unit.
+        
+        :param str value: the field value
+        :param float smallest_unit: the smallest monetary unit
+        :rtype: bool
+        """
+        if float(value) <= 0 or round_to_closest_multiple(value, smallest_unit) != float(value):
+            return False
+        else:
+            return True
 
 
 class UsernameValidator:
-    """
-    Username validator. Forbids spaces and
-    :data:`xpensemate.config.DBConfig.string_concat_delimiter`.
-    
-    :rtype: bool
-    """
 
     message = "Username field must not contain space or the '{}' character" \
         .format(DBConfig.string_concat_delimiter)
     
     @staticmethod
     def validate(value):
+        """
+        Username validation function. Forbids spaces and
+        :data:`xpensemate.config.DBConfig.string_concat_delimiter`.
+        
+        :param str value: the field value
+        :rtype: bool
+        """
+        
         if ' ' in value or DBConfig.string_concat_delimiter in value:
             return False
         else:
             return True
 
 
-def wtforms_validation():  
+def wtforms_validation(*args, **kwargs):  
     """
     Adapter function that returns a validation function compatible with
     the WTForms validator API that links to the validation method of the
@@ -62,7 +86,7 @@ def wtforms_validation():
     
     def _validator(form, field):
         FieldValidator = globals()[field.label.text+"Validator"]
-        if not FieldValidator.validate(field.data):
+        if not FieldValidator.validate(field.data, *args, **kwargs):
             raise wtforms.ValidationError(FieldValidator.message)
             
     return _validator
@@ -81,3 +105,56 @@ def flash_form_errors(form):
                 getattr(form, field).label.text,
                 error
             ), 'error')
+
+    
+def process_new_delete_form(form, callback_new, callback_delete, args_new = None, args_delete=None):
+    member_name = flask.session['username']
+    
+    redirect = False
+    
+    if flask.request.form['action'] == "new":
+        if form.validate():
+            
+            try:
+                if args_new is not None:
+                    callback_new(args_new)
+                else:
+                    callback_new()
+                redirect = True
+        
+            except exceptions.DatabaseError as e:
+                flask.flash("Database error! The data entered is invalid." + str(e), 'error')
+                
+            except Exception as e:
+                flask.flash("An unknown error occurred! Please help us fix this problem by reporting this bug." + "\n" + str(e), 'error')
+            
+        elif form.csrf_token.errors:
+            pass
+            
+        else:
+            flash_form_errors(form)
+            
+    elif flask.request.form['action'] == "delete":
+        redirect = True
+        
+        form.remove_insertion_fields()
+        
+        if form.validate():
+            
+            try:
+                if args_delete is not None:
+                    callback_delete(args_delete)
+                else:
+                    callback_delete()
+                return_value = True
+        
+            except exceptions.DatabaseError as e:
+                flask.flash("A database error occured. Please report it.", 'error')
+                
+            except Exception as e:
+                flask.flash("An unknown error occurred! Please help us fix this problem by reporting this bug." + "\n" + str(e), 'error')
+            
+    else:
+        raise ValueError("Bad form action")
+    
+    return return_value
