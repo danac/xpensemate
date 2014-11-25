@@ -40,10 +40,11 @@
                     <big>{{ group.name }}</big>
                 </dt>
                 </a>
+                
 <!--
                 <a href="javascript:void(0)" onclick="document.getElementById('group-form-action').value='delete';document.getElementById('group-form-group-id').value={{group.group_id}};document.getElementById('group-form').submit();" ><span style="color:#B80000">&#10007;</span></a>
 -->
-
+                
                 <dd>
                     {% for member in group.members %}
                     <dl class="attribute" style="margin-bottom:10px">
@@ -79,7 +80,7 @@
                         <dt>
                             <tt class="descname">
                                 {{ group_form.group_name(placeholder="Group name", style="border-radius: 50px;padding: 6px 12px;") }}
-                                {{ group_form.smallest_unit(placeholder="Smallest unit", style="border-radius: 50px;padding: 6px 12px;") }}
+                                {{ group_form.smallest_unit(placeholder="Smallest unit (e.g. 0.01)", alt="Enter the smallest value to which amounts are rounded", style="border-radius: 50px;padding: 6px 12px;") }}
                                 <a id="new-expense-submit" href="javascript:void(0)" onclick="document.getElementById('group-form-action').value='new';document.getElementById('group-form').submit();" class=""><span class="fa fa-arrow-circle-right"></span></a>
                                 </form>
                             </tt>

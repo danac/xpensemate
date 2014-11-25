@@ -73,10 +73,10 @@ def groups():
     groups = db_interface.get_member_groups(member_name)
     
     group_form = forms.GroupForm(flask.request.form)
-    
+
     if flask.request.method == 'POST':
-        success = validation.process_new_delete_form(group_form, _insert_group, _delete_group)
-        if success:
+        redirect = validation.process_new_delete_form(group_form, _insert_group, _delete_group)
+        if redirect:
             return flask.redirect('/groups')
         
     return flask.render_template("groups.htm", groups=groups, member_name=member_name, group_form=group_form)

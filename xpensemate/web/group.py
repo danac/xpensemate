@@ -135,7 +135,7 @@ def group(group_id):
             
         elif flask.request.form['form_name'] == "transfer":
             
-            sucess = validation.process_new_delete_form(transfer_form, _insert_transfer, _delete_transfer, group, group)
+            success = validation.process_new_delete_form(transfer_form, _insert_transfer, _delete_transfer, group, group)
         
         if success:
             return flask.redirect('/groups/' + group_id)
