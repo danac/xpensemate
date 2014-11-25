@@ -54,7 +54,8 @@ CREATE TABLE table_member_group (
         REFERENCES table_member (id),
     group_id INTEGER
         NOT NULL
-        REFERENCES table_group (id),
+        REFERENCES table_group (id)
+        ON DELETE CASCADE,
     is_owner BOOLEAN
         NOT NULL,
     PRIMARY KEY (member_id, group_id)
@@ -74,6 +75,7 @@ CREATE TABLE table_expense (
     group_id INTEGER
         NOT NULL
         REFERENCES table_group (id)
+        ON DELETE CASCADE
 );
 
  
@@ -109,4 +111,5 @@ CREATE TABLE table_transfer (
     group_id INTEGER
         NOT NULL
         REFERENCES table_group (id)
+        ON DELETE CASCADE
 );
