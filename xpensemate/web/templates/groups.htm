@@ -56,10 +56,10 @@
                                     {{ 0 }}
                             {% elif group.member_balance[member] < 0 %}
                                 <span class="viewcode-link" style="padding-left:5px;color:#B80000">
-                                    {{ "%0.2f"|format(round_to_closest_multiple(group.member_balance[member], group.smallest_unit)) }}
+                                    {{ format_amount(group.member_balance[member], group.smallest_unit) }}
                             {% else %}
                                 <span class="viewcode-link" style="padding-left:5px">
-                                    {{ "%0.2f"|format(round_to_closest_multiple(group.member_balance[member], group.smallest_unit)) }}
+                                    {{ format_amount(group.member_balance[member], group.smallest_unit) }}
                             {% endif %}
                                 </span>)
                         </dt>

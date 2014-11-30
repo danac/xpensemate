@@ -43,9 +43,7 @@
                                 <td>{{ member }} owes...</td>
                                 <td>
                                         {% for other_member in group.debts[member].keys() %}
-                                            {% if ((group.debts[member][other_member]|float/0.05)|round*0.05)|abs > 0 %}
-                                            {{ other_member }} : {{ "%0.2f"|format((group.debts[member][other_member]|float/0.05)|round*0.05) }} <br />
-                                            {% endif %}
+                                            {{ other_member }} : {{ format_amount(group.debts[member][other_member], group.smallest_unit) }} <br />
                                         {% endfor %}
                                 </td>
                             </tr>
@@ -89,7 +87,7 @@
                         {% for expense in group.expenses %}
                             <tr class="row-odd">
                                 <td>{{ expense.date }}</td>
-                                <td>{{ "%0.2f"|format((expense.amount|float/0.05)|round*0.05) }}</td>
+                                <td>{{ format_amount(expense.amount, group.smallest_unit) }}</td>
                                 <td>{{ expense.description }}&nbsp;</td>
                                 <td>
                                     {% for member in group.members %}
@@ -165,7 +163,7 @@
                         {% for transfer in group.transfers %}
                             <tr class="row-odd">
                                 <td>{{ transfer.date }}</td>
-                                <td>{{ '%.2f'|format(round_to_closest_multiple(transfer.amount, group.smallest_unit)) }}</td>
+                                <td>{{ format_amount(transfer.amount, group.smallest_unit) }}</td>
                                 <td>
                                     {{ transfer.from_member}} <big>&#10148;</big> {{ transfer.to_member }}
                                 </td>

@@ -37,4 +37,22 @@ def round_to_closest_multiple(amount, multiple):
     """
     
     return round(float(amount)/float(multiple))*float(multiple)
+    
+
+def format_amount(amount, smallest_unit):
+    """
+    Properly format a monetary for display amount
+    based on a given smallest amount.
+    
+    :param float amount: The value to format
+    :param float smallest_unit: The number to the closest multiple of which
+        the value must be rounded
+    :rtype: str
+    """
+    
+    # Ok it's a bit dirty, but it works perfectly for standard cases
+    precision = len(str(smallest_unit).split('.')[1])
+    placeholder = '{{:.{}f}}'.format(precision)
+    return placeholder.format(round_to_closest_multiple(amount, smallest_unit))
+    
 

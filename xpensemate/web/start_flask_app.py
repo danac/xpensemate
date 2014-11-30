@@ -24,7 +24,7 @@ import os
 import flask
 
 from xpensemate.db.interface.factory import DatabaseInterfaceFactory
-from xpensemate.utils.numeric import round_to_closest_multiple
+from xpensemate.utils.numeric import format_amount, round_to_closest_multiple
 from xpensemate.web.login import blueprint as login_blueprint
 from xpensemate.web.groups import blueprint as groups_blueprint
 from xpensemate.web.group import blueprint as group_blueprint
@@ -48,7 +48,7 @@ app.register_blueprint(group_blueprint)
 db_interface = DatabaseInterfaceFactory.get_interface()    
 
 # Insert helper functions into Jinja's namespace
-for method in ['round_to_closest_multiple']:
+for method in ['round_to_closest_multiple', 'format_amount']:
     app.jinja_env.globals[method] = globals()[method]
     
 
