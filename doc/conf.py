@@ -285,7 +285,7 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
             return Mock()
 
-MOCK_MODULES = ['psycopg2', 'flask']
+MOCK_MODULES = ['psycopg2', 'flask', 'wtforms']
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
