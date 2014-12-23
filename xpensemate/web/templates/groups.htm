@@ -26,20 +26,17 @@
     <h1>Welcome, {{ member_name }} !</h1>
     
     <div class="section" id="project-documentation">
-        <form id="group-form" class="wy-form" action="" method="post">
-        {{ group_form.csrf_token() }}
-        {{ group_form.action(id="group-form-action", value="new") }}
-        {{ group_form.group_id(id="group-form-group-id") }}
         <h2>Here are your groups:</h2>
         
         {% if groups|length > 0 %}
             {% for group in groups %}
             <dl class="class">
-                <a href="/groups/{{ group.group_id }}">
                 <dt style="margin-bottom:15px">
+                <a href="/groups/{{ group.group_id }}">
                     <big>{{ group.name }}</big>
-                </dt>
                 </a>
+                <a class="reference internal" href="javascript:void(0)" onclick="document.getElementById('new-member-form-container-{{group.group_id}}').style.display='inline'"><span class="viewcode-link" style="padding-left:10px">[+ add member]</span></a>
+                </dt>
                 
 <!--
                 <a href="javascript:void(0)" onclick="document.getElementById('group-form-action').value='delete';document.getElementById('group-form-group-id').value={{group.group_id}};document.getElementById('group-form').submit();" ><span style="color:#B80000">&#10007;</span></a>
@@ -63,8 +60,23 @@
                             {% endif %}
                                 </span>)
                         </dt>
+                        <dd></dd>
                     </dl>
                     {% endfor %}
+                    <dl id="new-member-form-container-{{group.group_id}}" class="attribute" style="margin-bottom:10px;display:none">
+                        <dt>
+                            <tt class="descname">
+                                <form id="new-member-form-{{group.group_id}}" class="wy-form" action="" method="post">
+                                {{ new_member_form.csrf_token() }}
+                                {{ new_member_form.action() }}
+                                {{ new_member_form.group_id(id="new-member-form-group-id", value=group.group_id ) }}
+                                {{ new_member_form.member_name(placeholder="New member name", style="border-radius: 50px;padding: 6px 12px;") }}
+                                <a id="new-member-submit" href="javascript:void(0)" onclick="document.getElementById('new-member-form-{{group.group_id}}').submit();" class=""><span class="fa fa-arrow-circle-right"></span></a>
+                                </form>
+                            </tt>
+                        </dt>
+                        <dd></dd>
+                    </dl>
                 </dd>
             </dl>
             {% endfor %}
@@ -72,25 +84,29 @@
             <p>No groups yet.</p>
         {% endif %}
         <dl class="class">
-            <a href="javascript:void(0)" onclick="document.getElementById('new-group-form-container').style.display='block'">
             <dt style="margin-bottom:15px">
+                <a href="javascript:void(0)" onclick="document.getElementById('new-group-form-container').style.display='block'">
                 <big>+ new group</big>
-                <dd id="new-group-form-container" style="display:none">
-                    <dl class="attribute" style="margin-bottom:10px">
-                        <dt>
-                            <tt class="descname">
-                                {{ group_form.group_name(placeholder="Group name", style="border-radius: 50px;padding: 6px 12px;") }}
-                                {{ group_form.smallest_unit(placeholder="Smallest unit (e.g. 0.01)", alt="Enter the smallest value to which amounts are rounded", style="border-radius: 50px;padding: 6px 12px;") }}
-                                <a id="new-expense-submit" href="javascript:void(0)" onclick="document.getElementById('group-form-action').value='new';document.getElementById('group-form').submit();" class=""><span class="fa fa-arrow-circle-right"></span></a>
-                                </form>
-                            </tt>
-                        </dt>
-                    </dl>
-                </dd>
+                </a>
             </dt>
-            </a>
+            <dd id="new-group-form-container" style="display:none">
+                <dl class="attribute" style="margin-bottom:10px">
+                    <dt>
+                        <tt class="descname">
+                            <form id="group-form" class="wy-form" action="" method="post">
+                            {{ group_form.csrf_token() }}
+                            {{ group_form.action(id="group-form-action", value="new") }}
+                            {{ group_form.group_id(id="group-form-group-id") }}
+                            {{ group_form.group_name(placeholder="Group name", style="border-radius: 50px;padding: 6px 12px;") }}
+                            {{ group_form.smallest_unit(placeholder="Smallest unit (e.g. 0.01)", alt="Enter the smallest value to which amounts are rounded", style="border-radius: 50px;padding: 6px 12px;") }}
+                            <a id="new-group-submit" href="javascript:void(0)" onclick="document.getElementById('group-form-action').value='new';document.getElementById('group-form').submit();" class=""><span class="fa fa-arrow-circle-right"></span></a>
+                            </form>
+                        </tt>
+                    </dt>
+                    <dd></dd>
+                </dl>
+            </dd>
         </dl>
-    </form>
     </div>
     
 </div>

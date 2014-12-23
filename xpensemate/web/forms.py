@@ -177,7 +177,7 @@ def transfer_form_factory(members):
     
 class GroupForm(FormBase):
     """
-    This base class contains the form used to create and delete groups.
+    Form used to create and delete groups.
     """
     
     action = wtf.HiddenField('action', [
@@ -200,3 +200,20 @@ class GroupForm(FormBase):
         del self.group_name
         del self.smallest_unit
 
+
+class NewMemberForm(FormBase):
+    """
+    Form used to add members to and existing group.
+    """
+    
+    action = wtf.HiddenField('action', [
+        wtf.validators.DataRequired()
+    ], default="new_member") 
+        
+    member_name = wtf.TextField('New member name', [
+        wtf.validators.DataRequired()
+    ])
+    
+    group_id = wtf.HiddenField('group_id', [
+        wtf.validators.Required()
+    ])

@@ -54,6 +54,12 @@ def _delete_group():
     #db_interface.delete_group(group_id)
     #flask.flash("Deleted group " + str(group_id), 'info')
 
+def _add_group_member():
+    print("ADD MEMBER!", flask.request.form['member_name'], flask.request.form['group_id'])
+    #group_id = flask.request.form['group_id']
+    #db_interface.delete_group(group_id)
+    #flask.flash("Deleted group " + str(group_id), 'info')
+
     
 @blueprint.route("/groups", methods=['GET', 'POST'])
 @blueprint.route("/groups/", methods=['GET', 'POST'])
@@ -73,10 +79,20 @@ def groups():
     groups = db_interface.get_member_groups(member_name)
     
     group_form = forms.GroupForm(flask.request.form)
+    new_member_form = forms.NewMemberForm(flask.request.form)
 
     if flask.request.method == 'POST':
-        redirect = validation.process_new_delete_form(group_form, _insert_group, _delete_group)
+        redirect = False
+        if flask.request.form['action'] == 'new_member':
+            if new_member_form.validate():
+                redirect = True
+                validation.db_access_wrapper(_add_group_member)
+            else:
+                validation.flash_form_errors(new_member_form)
+        else:
+            redirect = validation.process_new_delete_form(group_form, _insert_group, _delete_group)
+            
         if redirect:
             return flask.redirect('/groups')
         
-    return flask.render_template("groups.htm", groups=groups, member_name=member_name, group_form=group_form)
+    return flask.render_template("groups.htm", groups=groups, member_name=member_name, group_form=group_form, new_member_form=new_member_form)

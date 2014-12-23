@@ -106,6 +106,16 @@ def flash_form_errors(form):
                 error
             ), 'error')
 
+
+def db_access_wrapper(function, *args, **kwargs):
+    try:  
+        function(*args, **kwargs)
+    except exceptions.DatabaseError as e:
+        flask.flash("Database error! The data entered is invalid." + str(e), 'error')
+        
+    except Exception as e:
+        flask.flash("An unknown error occurred! Please help us fix this problem by reporting this bug." + "\n" + str(e), 'error')
+
     
 def process_new_delete_form(form, callback_new, callback_delete, args_new = None, args_delete=None):
     member_name = flask.session['username']
@@ -116,18 +126,11 @@ def process_new_delete_form(form, callback_new, callback_delete, args_new = None
     if flask.request.form['action'] == "new":
         if form.validate():
             
-            try:
-                if args_new is not None:
-                    callback_new(args_new)
-                else:
-                    callback_new()
-                redirect = True
-        
-            except exceptions.DatabaseError as e:
-                flask.flash("Database error! The data entered is invalid." + str(e), 'error')
-                
-            except Exception as e:
-                flask.flash("An unknown error occurred! Please help us fix this problem by reporting this bug." + "\n" + str(e), 'error')
+            if args_new is not None:
+                db_access_wrapper(callback_new, args_new)
+            else:
+                db_access_wrapper(callback_new)
+            redirect = True
             
         elif form.csrf_token.errors:
             pass
@@ -142,17 +145,10 @@ def process_new_delete_form(form, callback_new, callback_delete, args_new = None
         
         if form.validate():
             
-            try:
-                if args_delete is not None:
-                    callback_delete(args_delete)
-                else:
-                    callback_delete()
-        
-            except exceptions.DatabaseError as e:
-                flask.flash("A database error occured. Please report it.", 'error')
-                
-            except Exception as e:
-                flask.flash("An unknown error occurred! Please help us fix this problem by reporting this bug." + "\n" + str(e), 'error')
+            if args_delete is not None:
+                db_access_wrapper(callback_delete, args_delete)
+            else:
+                db_access_wrapper(callback_delete)
             
     else:
         raise ValueError("Bad form action")
